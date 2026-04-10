@@ -1,0 +1,20 @@
+rule_id: M1_W1
+layer:
+  number: 13
+  datatype: 0
+
+cases:
+  - name: pass_w1p9
+    width_um: 1.9
+    height_um: 10.0
+    expected_violations: 0
+
+  - name: edge_w1p8
+    width_um: 1.8
+    height_um: 5.0
+    expected_violations: 0
+
+  - name: fail_w1p7
+    width_um: 1.7
+    height_um: 10.0
+    expected_violations: 1
