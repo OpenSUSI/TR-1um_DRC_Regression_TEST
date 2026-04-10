@@ -1,0 +1,227 @@
+# =============================================================================
+# TR-1um PDK KLayout DRC Runset
+# =============================================================================
+# Technology : TR-1um (1-micron CMOS)
+# Version    : 1.0.0
+# Description: Design Rule Check (DRC) runset for TR-1um PDK regression tests
+# Reference  : TR-1um Process Design Rules Rev. 1.0
+#
+# Usage (command line):
+#   klayout -b -r drc/tr1um.drc -rd input=<layout.gds> -rd report=<out.lyrdb>
+#
+# Usage (interactive):
+#   Open in KLayout DRC menu, set 'input' and 'report' macros variables.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# Setup
+# ---------------------------------------------------------------------------
+report("TR-1um DRC Report")
+
+if $input
+  source($input)
+end
+
+# ---------------------------------------------------------------------------
+# Layer Definitions
+# GDS layer number / datatype mapping for TR-1um PDK
+# ---------------------------------------------------------------------------
+nwell    = input(1,  0)   # N-Well
+active   = input(2,  0)   # Active (OD – oxide definition / diffusion)
+nplus    = input(3,  0)   # N+ implant (N-select)
+pplus    = input(4,  0)   # P+ implant (P-select)
+poly     = input(5,  0)   # Poly-silicon (gate)
+contact  = input(6,  0)   # Contact
+metal1   = input(7,  0)   # Metal 1
+via1     = input(8,  0)   # Via 1 (Metal1–Metal2)
+metal2   = input(9,  0)   # Metal 2
+via2     = input(10, 0)   # Via 2 (Metal2–Metal3)
+metal3   = input(11, 0)   # Metal 3
+overglass = input(12, 0)  # Overglass / pad opening
+
+# ---------------------------------------------------------------------------
+# Derived layers
+# ---------------------------------------------------------------------------
+gate       = poly & active           # Gate region (poly over active)
+non_gate   = poly - active           # Non-gate poly
+active_nmos = active & nplus         # NMOS active (N+ diffusion)
+active_pmos = active & pplus         # PMOS active (P+ diffusion in NWELL)
+active_nwell = active & nwell        # Active inside NWELL
+
+# ===========================================================================
+# NWELL Rules
+# ===========================================================================
+# NWELL.W1  – Minimum NWELL width
+nwell.width(3.0).output("NWELL.W1", "NWELL minimum width < 3.0 um")
+
+# NWELL.S1  – Minimum NWELL to NWELL space (same-net exemption not applied)
+nwell.space(5.0).output("NWELL.S1", "NWELL minimum space < 5.0 um")
+
+# NWELL.E1  – NWELL must enclose PMOS active by at least 1.0 um
+nwell.enclosing(active_nwell, 1.0).output("NWELL.E1", "NWELL enclosure of PMOS active < 1.0 um")
+
+# ===========================================================================
+# ACTIVE (OD) Rules
+# ===========================================================================
+# ACTIVE.W1 – Minimum active width
+active.width(2.0).output("ACTIVE.W1", "ACTIVE minimum width < 2.0 um")
+
+# ACTIVE.S1 – Minimum active to active space
+active.space(2.5).output("ACTIVE.S1", "ACTIVE minimum space < 2.5 um")
+
+# ===========================================================================
+# NPLUS (N-select) Rules
+# ===========================================================================
+# NPLUS.W1  – Minimum NPLUS width
+nplus.width(2.0).output("NPLUS.W1", "NPLUS minimum width < 2.0 um")
+
+# NPLUS.S1  – Minimum NPLUS space
+nplus.space(2.0).output("NPLUS.S1", "NPLUS minimum space < 2.0 um")
+
+# NPLUS.E1  – NPLUS must enclose NMOS active by at least 1.0 um
+nplus.enclosing(active_nmos, 1.0).output("NPLUS.E1", "NPLUS enclosure of NMOS active < 1.0 um")
+
+# ===========================================================================
+# PPLUS (P-select) Rules
+# ===========================================================================
+# PPLUS.W1  – Minimum PPLUS width
+pplus.width(2.0).output("PPLUS.W1", "PPLUS minimum width < 2.0 um")
+
+# PPLUS.S1  – Minimum PPLUS space
+pplus.space(2.0).output("PPLUS.S1", "PPLUS minimum space < 2.0 um")
+
+# PPLUS.E1  – PPLUS must enclose PMOS active by at least 1.0 um
+pplus_active = active & pplus
+pplus.enclosing(pplus_active, 1.0).output("PPLUS.E1", "PPLUS enclosure of PMOS active < 1.0 um")
+
+# ===========================================================================
+# POLY Rules
+# ===========================================================================
+# POLY.W1   – Minimum poly width (gate length)
+poly.width(1.0).output("POLY.W1", "POLY minimum width < 1.0 um")
+
+# POLY.S1   – Minimum poly to poly space
+poly.space(2.0).output("POLY.S1", "POLY minimum space < 2.0 um")
+
+# POLY.E1   – Gate poly must extend beyond active edge by at least 0.5 um
+#             Check: the non-gate poly regions (end caps) must have
+#             minimum width >= 0.5 um in the extension direction.
+non_gate.width(0.5).output("POLY.E1", "Gate poly extension beyond active < 0.5 um")
+
+# POLY.SP1  – Routing (non-crossing) poly to active minimum space
+#             Only poly that does not cross active is checked; gate end-caps
+#             are adjacent to active by design and are exempt from this rule.
+routing_poly = poly.not_interacting(active)
+routing_poly.separation(active, 0.5).output("POLY.SP1", "Routing poly to active space < 0.5 um")
+
+# ===========================================================================
+# CONTACT Rules
+# ===========================================================================
+# CONT.W1   – Minimum contact width (square contacts)
+contact.width(1.2).output("CONT.W1", "CONTACT minimum width < 1.2 um")
+
+# CONT.S1   – Minimum contact to contact space
+contact.space(1.2).output("CONT.S1", "CONTACT minimum space < 1.2 um")
+
+# CONT.E1   – Active must enclose contact by at least 0.5 um
+active.enclosing(contact & active, 0.5).output("CONT.E1", "ACTIVE enclosure of contact < 0.5 um")
+
+# CONT.E2   – Poly must enclose contact (on-poly contact) by at least 0.5 um
+poly.enclosing(contact & poly, 0.5).output("CONT.E2", "POLY enclosure of contact < 0.5 um")
+
+# CONT.R1   – Contact must be inside active or poly
+(contact - (active + poly)).output("CONT.R1", "CONTACT not inside ACTIVE or POLY")
+
+# ===========================================================================
+# METAL1 Rules
+# ===========================================================================
+# MET1.W1   – Minimum Metal1 width
+metal1.width(1.5).output("MET1.W1", "METAL1 minimum width < 1.5 um")
+
+# MET1.S1   – Minimum Metal1 to Metal1 space
+metal1.space(2.0).output("MET1.S1", "METAL1 minimum space < 2.0 um")
+
+# MET1.E1   – Metal1 must enclose contact by at least 0.5 um
+metal1.enclosing(contact & metal1, 0.5).output("MET1.E1", "METAL1 enclosure of contact < 0.5 um")
+
+# MET1.R1   – Contact must be covered by Metal1
+(contact - metal1).output("MET1.R1", "CONTACT not covered by METAL1")
+
+# ===========================================================================
+# VIA1 Rules
+# ===========================================================================
+# VIA1.W1   – Minimum Via1 width (square vias)
+via1.width(1.5).output("VIA1.W1", "VIA1 minimum width < 1.5 um")
+
+# VIA1.S1   – Minimum Via1 to Via1 space
+via1.space(1.5).output("VIA1.S1", "VIA1 minimum space < 1.5 um")
+
+# VIA1.E1   – Metal1 must enclose Via1 by at least 0.5 um
+metal1.enclosing(via1 & metal1, 0.5).output("VIA1.E1", "METAL1 enclosure of VIA1 < 0.5 um")
+
+# VIA1.E2   – Metal2 must enclose Via1 by at least 0.5 um
+metal2.enclosing(via1 & metal2, 0.5).output("VIA1.E2", "METAL2 enclosure of VIA1 < 0.5 um")
+
+# VIA1.R1   – Via1 must be inside Metal1
+(via1 - metal1).output("VIA1.R1", "VIA1 not inside METAL1")
+
+# VIA1.R2   – Via1 must be inside Metal2
+(via1 - metal2).output("VIA1.R2", "VIA1 not inside METAL2")
+
+# ===========================================================================
+# METAL2 Rules
+# ===========================================================================
+# MET2.W1   – Minimum Metal2 width
+metal2.width(2.0).output("MET2.W1", "METAL2 minimum width < 2.0 um")
+
+# MET2.S1   – Minimum Metal2 to Metal2 space
+metal2.space(2.5).output("MET2.S1", "METAL2 minimum space < 2.5 um")
+
+# ===========================================================================
+# VIA2 Rules
+# ===========================================================================
+# VIA2.W1   – Minimum Via2 width (square vias)
+via2.width(1.5).output("VIA2.W1", "VIA2 minimum width < 1.5 um")
+
+# VIA2.S1   – Minimum Via2 to Via2 space
+via2.space(1.5).output("VIA2.S1", "VIA2 minimum space < 1.5 um")
+
+# VIA2.E1   – Metal2 must enclose Via2 by at least 0.5 um
+metal2.enclosing(via2 & metal2, 0.5).output("VIA2.E1", "METAL2 enclosure of VIA2 < 0.5 um")
+
+# VIA2.E2   – Metal3 must enclose Via2 by at least 0.5 um
+metal3.enclosing(via2 & metal3, 0.5).output("VIA2.E2", "METAL3 enclosure of VIA2 < 0.5 um")
+
+# VIA2.R1   – Via2 must be inside Metal2
+(via2 - metal2).output("VIA2.R1", "VIA2 not inside METAL2")
+
+# VIA2.R2   – Via2 must be inside Metal3
+(via2 - metal3).output("VIA2.R2", "VIA2 not inside METAL3")
+
+# ===========================================================================
+# METAL3 Rules
+# ===========================================================================
+# MET3.W1   – Minimum Metal3 width
+metal3.width(2.5).output("MET3.W1", "METAL3 minimum width < 2.5 um")
+
+# MET3.S1   – Minimum Metal3 to Metal3 space
+metal3.space(3.0).output("MET3.S1", "METAL3 minimum space < 3.0 um")
+
+# ===========================================================================
+# OVERGLASS (Pad Opening) Rules
+# ===========================================================================
+# OVGLS.W1  – Minimum overglass opening width (bond pad area)
+overglass.width(40.0).output("OVGLS.W1", "OVERGLASS opening minimum width < 40.0 um")
+
+# OVGLS.S1  – Minimum overglass to overglass space
+overglass.space(30.0).output("OVGLS.S1", "OVERGLASS minimum space < 30.0 um")
+
+# OVGLS.E1  – Metal3 must enclose overglass opening by at least 10.0 um
+metal3.enclosing(overglass & metal3, 10.0).output("OVGLS.E1", "METAL3 enclosure of OVERGLASS opening < 10.0 um")
+
+# OVGLS.R1  – Overglass opening must be inside Metal3
+(overglass - metal3).output("OVGLS.R1", "OVERGLASS opening not inside METAL3")
+
+# ===========================================================================
+# End of TR-1um DRC Runset
+# ===========================================================================

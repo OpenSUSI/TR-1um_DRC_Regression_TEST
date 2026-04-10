@@ -1,0 +1,12 @@
+# Generated DRC reports
+tests/reports/
+
+# Python byte-code
+__pycache__/
+*.pyc
+*.pyo
+
+# Editor / OS artefacts
+.DS_Store
+*.swp
+*.swo

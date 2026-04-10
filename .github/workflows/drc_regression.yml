@@ -1,0 +1,51 @@
+name: DRC Regression
+
+on:
+  push:
+    branches: ["main", "develop"]
+    paths:
+      - "drc/**"
+      - "tests/**"
+      - ".github/workflows/drc_regression.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "drc/**"
+      - "tests/**"
+      - ".github/workflows/drc_regression.yml"
+  workflow_dispatch:
+
+jobs:
+  drc-regression:
+    name: KLayout DRC Regression
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # -----------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------------------
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # -----------------------------------------------------------------------
+      - name: Install KLayout Python package
+        run: pip install klayout
+
+      # -----------------------------------------------------------------------
+      - name: Generate test GDS layouts
+        run: python tests/generate_tests.py
+
+      # -----------------------------------------------------------------------
+      - name: Run Python DRC regression
+        run: python tests/run_drc_python.py --verbose
+
+      # -----------------------------------------------------------------------
+      - name: Run shell-based DRC regression (requires klayout CLI)
+        if: ${{ false }}   # Enabled when klayout CLI is available on the runner
+        run: bash tests/regression.sh
