@@ -14,7 +14,7 @@ cases:
     height_um: 5.0
     expected_violations: 0
 
-  - name: fail_w1p7
-    width_um: 1.7
+  - name: fail_w1p75
+    width_um: 1.75
     height_um: 10.0
     expected_violations: 1

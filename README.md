@@ -16,31 +16,37 @@ The directory structure is organized as follows:
 ```
 TR-1um_DRC_Regression_TEST/
 ├── external/
-│   └── TR-1um/                 # Git submodule: source of the DRC rule files
+│   └── TR-1um/                  # Git submodule: DRC runset source
 │       └── libs.tech/klayout/drc/run.drc
 │
-├── scripts/                   # Core scripts for regression execution
-│   ├── config.py              # Common path definitions (e.g., runset location)
-│   ├── run_drc.py             # Executes KLayout DRC in batch mode
-│   ├── check_results.py       # Compares expected vs actual violations
-│   └── batch_regression.py    # Runs all testcases in a directory
+├── scripts/                    # Core scripts
+│   ├── config.py
+│   ├── run_drc.py              # Run KLayout DRC
+│   ├── check_results.py        # Compare expected vs actual
+│   ├── batch_regression.py     # Run all tests (recursive)
+│   └── generate_all.py         # Generate all testcases (recursive)
 │
-├── unit_tests/                # Unit test definitions (one directory per rule)
-│   └── M1_W1/
-│       ├── cases.yaml         # Testcase parameters and expected results
-│       ├── generate.py        # Generates GDS test patterns from YAML
-│       └── README.md          # Description of the rule and test intent
+├── unit_tests/                 # One directory per rule
+│   ├── GC.W1/
+│   │   ├── cases.yaml
+│   │   ├── generate.py
+│   │   ├── README.md
+│   │   └── generated/          # Auto-generated (not tracked)
+│   │       ├── *.gds
+│   │       └── *.json
+│   │
+│   ├── GC.S1/
+│   │   └── ...
+│   │
+│   └── M1.W1/
+│       └── ...
 │
-├── generated/                 # Auto-generated GDS and metadata (not tracked)
-│   └── M1_W1/
-│       ├── *.gds
-│       └── *.json
+├── reports/                    # DRC results (not tracked)
+│   ├── GC.W1/
+│   ├── GC.S1/
+│   └── M1.W1/
 │
-├── reports/                   # DRC output reports (not tracked)
-│   └── M1_W1/
-│       └── *.lyrdb
-│
-└── README.md                  # This file
+└── README.md
 ```
 
 ---
@@ -97,7 +103,7 @@ git submodule update --init --recursive
 ### 2. Generate test patterns
 
 ```
-python3 unit_tests/M1_W1/generate.py generated/M1_W1
+python3 scripts/generate_all.py unit_tests
 ```
 This will generate:
 - GDS test layouts (.gds)
@@ -106,7 +112,7 @@ This will generate:
 ### 3. Run DRC regression
 
 ```
-python3 scripts/batch_regression.py generated/M1_W1
+python3 scripts/batch_regression.py unit_tests
 ```
 This will:
 - Execute KLayout DRC using the TR-1um runset
