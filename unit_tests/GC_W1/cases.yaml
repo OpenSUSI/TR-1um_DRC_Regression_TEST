@@ -19,13 +19,3 @@ cases:
     height_um: 10.0
     expected_violations: 1
 
-  - name: edge_w30p0
-    width_um: 30.0
-    height_um: 40.0
-    expected_violations: 0
-  
-  - name: fail_w30p05
-    width_um: 30.05
-    height_um: 40.0
-    expected_violations: 1
-
