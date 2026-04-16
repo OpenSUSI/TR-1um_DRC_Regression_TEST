@@ -1,6 +1,7 @@
 rule_id: M1.W1
-layer:
-  M1: { number: 13, datatype: 1 }
+
+layers:
+  M1: { number: 13, datatype: 0 }
 
 cases:
   - name: pass_w1p9
