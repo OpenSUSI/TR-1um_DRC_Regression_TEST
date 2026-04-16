@@ -1,0 +1,51 @@
+rule_id: WN.Z1
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AP: { number:  3, datatype: 1 }
+  AN: { number:  3, datatype: 2 }
+  AR: { number:  3, datatype: 3 }
+  AC: { number:  3, datatype: 4 }
+  GC: { number:  8, datatype: 1 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - AR.L1
+  - GC.R2
+  
+cases:
+  - name: pass_AR_AN
+    shapes:
+      WN: [-30, -30, 30, 30]
+      AR:
+        - type: octagon
+          box: [-15, -20, 0, 20]
+          cut: 1
+      GC:
+        - type: donut
+          outer: [-18, -23, 3, 23]
+          inner: [-16, -21, 1, 21]
+      AN: [5, -20, 15, 20]
+    expected_violations: 0
+
+  - name: fail_AR_AP
+    shapes:
+      WN: [-30, -30, 30, 30]
+      AR:
+        - type: octagon
+          box: [-15, -20, 0, 20]
+          cut: 1
+      GC:
+        - type: donut
+          outer: [-18, -23, 3, 23]
+          inner: [-16, -21, 1, 21]
+      AP: [5, -20, 15, 20]
+    expected_violations: 1
+
+
+
+
+
+
+
+

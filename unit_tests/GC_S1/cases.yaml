@@ -18,7 +18,7 @@ cases:
       - [10+1.2, 0, 20+1.2, 30]
     expected_violations: 0
 
-  - name: fail_s1p15
+  - name: fail_s1p15_single
     shapes:
       GC: 
       - [0, 0, 10, 30]
@@ -32,3 +32,12 @@ cases:
       - [0, 0, 10, 30]
       - [10+1.15, 0, 20+1.15, 30]
     expected_violations: 2
+
+  - name: fail_s1p15_notch
+    shapes:
+      GC: 
+      - [0, 0,      5,  30]
+      - [5, 0,     10,  10]
+      - [5, 11.15, 10,  30]
+    expected_violations: 1
+

@@ -1,59 +1,95 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+from collections import defaultdict
 from pathlib import Path
-import json
 import subprocess
 import sys
-from collections import defaultdict
+
+import yaml
 
 
-REPO_ROOT   = Path(__file__).resolve().parent.parent
-RUN_DRC     = REPO_ROOT / "scripts" / "run_drc.py"
-CHECK       = REPO_ROOT / "scripts" / "check_results.py"
+REPO_ROOT = Path(__file__).resolve().parent.parent
+RUN_DRC = REPO_ROOT / "scripts" / "run_drc.py"
+CHECK_RESULTS = REPO_ROOT / "scripts" / "check_results.py"
 DEFAULT_REPORT_ROOT = REPO_ROOT / "reports"
 
 
-def load_json(path: Path) -> dict:
-    """Load a JSON file."""
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def load_yaml(path: Path) -> dict:
+    """Load and validate a YAML file as a dictionary."""
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+
+    if not isinstance(data, dict):
+        raise ValueError(f"invalid YAML structure: {path}")
+
+    return data
 
 
-def find_testcases(unit_tests_dir: Path) -> list[tuple[str, Path, Path, Path]]:
+def find_testcases(unit_tests_dir: Path) -> list[tuple[str, str, Path, Path, Path]]:
     """
     Recursively find all regression testcases under unit_tests_dir.
 
     Expected layout:
-        unit_tests/<RULE_ID>/generated/<case_name>.json
-        unit_tests/<RULE_ID>/generated/<case_name>.gds
+        unit_tests/<RULE_DIR>/cases.yaml
+        unit_tests/<RULE_DIR>/generated/<case_name>.gds
+
+    Expected cases.yaml format:
+        rule_id: <RULE_ID>
+        cases:
+          - name: <case_name>
+            ...
 
     Returns:
-        A list of tuples:
-            (rule_id, meta_path, gds_path, rule_dir)
+        List of tuples:
+            (rule_id, case_name, cases_yaml_path, gds_path, rule_dir)
     """
-    testcases: list[tuple[str, Path, Path, Path]] = []
+    testcases: list[tuple[str, str, Path, Path, Path]] = []
 
-    for meta_path in sorted(unit_tests_dir.rglob("generated/*.json")):
+    for cases_yaml_path in sorted(unit_tests_dir.rglob("cases.yaml")):
+        rule_dir = cases_yaml_path.parent
+
         try:
-            meta = load_json(meta_path)
-        except Exception as e:
-            print(f"Warning: failed to read JSON: {meta_path} ({e})")
+            data = load_yaml(cases_yaml_path)
+        except Exception as exc:
+            print(f"Warning: failed to read YAML: {cases_yaml_path} ({exc})")
             continue
 
-        case_name = meta.get("case_name", meta_path.stem)
-        rule_id = meta.get("rule_id", meta_path.parent.parent.name)
-        gds_path = meta_path.with_suffix(".gds")
-        rule_dir = meta_path.parent.parent
+        rule_id = str(data.get("rule_id", rule_dir.name)).strip()
+        cases = data.get("cases", [])
 
-        testcases.append((rule_id, meta_path, gds_path, rule_dir))
+        if not isinstance(cases, list):
+            print(f"Warning: 'cases' is not a list: {cases_yaml_path}")
+            continue
+
+        for case in cases:
+            if not isinstance(case, dict):
+                print(f"Warning: invalid case entry in {cases_yaml_path}: {case!r}")
+                continue
+
+            case_name = str(case.get("name", "")).strip()
+            if not case_name:
+                print(f"Warning: case without name in {cases_yaml_path}")
+                continue
+
+            gds_path = rule_dir / "generated" / f"{case_name}.gds"
+            testcases.append((rule_id, case_name, cases_yaml_path, gds_path, rule_dir))
 
     return testcases
 
 
-def run_case(gds_path: Path, meta_path: Path, report_path: Path) -> bool:
-    """Run DRC for one testcase and verify the result."""
-    case_name = meta_path.stem
+def run_case(
+    case_name: str,
+    gds_path: Path,
+    cases_yaml_path: Path,
+    report_path: Path,
+) -> bool:
+    """
+    Run DRC for one testcase and verify the result.
+
+    Returns:
+        True if both DRC run and result check succeed, otherwise False.
+    """
     print(f"\n=== Running {case_name} ===")
 
     try:
@@ -61,14 +97,20 @@ def run_case(gds_path: Path, meta_path: Path, report_path: Path) -> bool:
             ["python3", str(RUN_DRC), str(gds_path), str(report_path)],
             check=True,
         )
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError as exc:
         print(f"Error: DRC execution failed for {case_name}")
-        print(f"Command: {' '.join(map(str, e.cmd))}")
-        print(f"Return code: {e.returncode}")
+        print(f"Command     : {' '.join(map(str, exc.cmd))}")
+        print(f"Return code : {exc.returncode}")
         return False
 
     result = subprocess.run(
-        ["python3", str(CHECK), str(report_path), str(meta_path)],
+        [
+            "python3",
+            str(CHECK_RESULTS),
+            str(report_path),
+            str(cases_yaml_path),
+            str(case_name),
+        ],
         check=False,
     )
 
@@ -95,8 +137,10 @@ def main() -> None:
 
     testcases = find_testcases(unit_tests_dir)
     if not testcases:
-        print(f"Error: no testcase metadata files found under {unit_tests_dir}")
-        print("Expected pattern: unit_tests/<RULE_ID>/generated/*.json")
+        print(f"Error: no testcases found under {unit_tests_dir}")
+        print("Expected layout:")
+        print("  unit_tests/<RULE_DIR>/cases.yaml")
+        print("  unit_tests/<RULE_DIR>/generated/<case_name>.gds")
         sys.exit(1)
 
     DEFAULT_REPORT_ROOT.mkdir(parents=True, exist_ok=True)
@@ -105,13 +149,14 @@ def main() -> None:
     passed = 0
     failed_cases: list[tuple[str, str]] = []
 
-    rule_stats: dict[str, dict[str, int]] = defaultdict(lambda: {"total": 0, "passed": 0})
+    rule_stats: dict[str, dict[str, int]] = defaultdict(
+        lambda: {"total": 0, "passed": 0}
+    )
 
-    for rule_id, meta_path, gds_path, rule_dir in testcases:
+    for rule_id, case_name, cases_yaml_path, gds_path, rule_dir in testcases:
         total += 1
         rule_stats[rule_id]["total"] += 1
 
-        case_name = meta_path.stem
         report_dir = DEFAULT_REPORT_ROOT / rule_dir.name
         report_dir.mkdir(parents=True, exist_ok=True)
         report_path = report_dir / f"{case_name}.lyrdb"
@@ -122,7 +167,7 @@ def main() -> None:
             failed_cases.append((rule_id, case_name))
             continue
 
-        ok = run_case(gds_path, meta_path, report_path)
+        ok = run_case(case_name, gds_path, cases_yaml_path, report_path)
         if ok:
             passed += 1
             rule_stats[rule_id]["passed"] += 1
@@ -135,7 +180,7 @@ def main() -> None:
     print(f"Failed : {total - passed}")
 
     print("\n=== Summary by Rule ===")
-    for rule_id in sorted(rule_stats.keys()):
+    for rule_id in sorted(rule_stats):
         stats = rule_stats[rule_id]
         failed = stats["total"] - stats["passed"]
         print(
