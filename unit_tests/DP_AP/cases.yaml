@@ -1,0 +1,40 @@
+rule_id: DP.AP
+
+layers:
+  AP: { number: 3, datatype: 1 }
+  GC: { number: 8, datatype: 1 }
+  WN: { number: 140, datatype: 0 }
+
+cases:
+  - name: pass_sep_s2p85
+    shapes:
+      AP:
+        - [0, 0, 10, 10]            # DP
+        - [12.85, 0, 20.85, 10]     # AP
+      WN:
+        - [-10, -10, 30, 30]
+      GC:
+        - [14.85, -5, 15.85, 20] 
+    expected_violations: 0
+
+  - name: edge_sep_s2p80
+    shapes:
+      AP:
+        - [0, 0, 10, 10]            # DP
+        - [12.80, 0, 20.80, 10]     # AP
+      WN:
+        - [-10, -10, 30, 30]
+      GC:
+        - [14.80, -5, 15.80, 20] 
+    expected_violations: 0
+
+  - name: fail_sep_s2p75
+    shapes:
+      AP:
+        - [0, 0, 10, 10]            # DP
+        - [12.75, 0, 20.75, 10]     # AP
+      WN:
+        - [-10, -10, 30, 30]
+      GC:
+        - [14.75, -5, 15.75, 20] 
+    expected_violations: 1

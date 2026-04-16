@@ -1,0 +1,30 @@
+rule_id: AP.WN
+
+layers:
+  AP: { number: 3, datatype: 1 }
+  WN: { number: 140, datatype: 0 }
+
+cases:
+  - name: pass_enclose_w8p00
+    shapes:
+      AP: [8.0, 8.0, 30-8.0, 30-8.0]
+      WN: [0, 0, 30, 30]
+    expected_violations: 0
+
+  - name: fail_enclose_w6p95_all
+    shapes:
+      AP: [6.95, 6.95, 30-6.95, 30-6.95]
+      WN: [0, 0, 30, 30]
+    expected_violations: 4
+
+  - name: fail_enclose_w6p95_diagonal
+    shapes:
+      AP: [8.00, 8.00, 30-6.95, 30-6.95]
+      WN: [0, 0, 30, 30]
+    expected_violations: 2
+
+  - name: fail_enclose_w6p95_single
+    shapes:
+      AP: [8.00, 8.00, 30-8.00, 30-6.95]
+      WN: [0, 0, 30, 30]
+    expected_violations: 1
