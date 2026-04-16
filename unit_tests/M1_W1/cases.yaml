@@ -1,20 +1,29 @@
 rule_id: M1.W1
 layer:
-  number: 13
-  datatype: 0
+  M1: { number: 13, datatype: 1 }
 
 cases:
   - name: pass_w1p9
-    width_um: 1.9
-    height_um: 10.0
+    shapes:
+      M1:
+      - [0, 0, 1.9, 10.0]
     expected_violations: 0
 
   - name: edge_w1p8
-    width_um: 1.8
-    height_um: 5.0
+    shapes:
+      M1:
+      - [0, 0, 1.8, 5.0]
     expected_violations: 0
 
   - name: fail_w1p75
-    width_um: 1.75
-    height_um: 10.0
+    shapes:
+      M1:
+      - [0, 0, 1.75, 10.0]
     expected_violations: 1
+
+  - name: fail_w1p75_double
+    shapes:
+      M1:
+      - [ 0, 0,  1.75, 10.0]
+      - [10, 0, 11.75, 10.0]
+    expected_violations: 2

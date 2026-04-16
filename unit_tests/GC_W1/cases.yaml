@@ -1,21 +1,31 @@
 rule_id: GC.W1
-layer:
-  number: 8
-  datatype: 1
+
+layers:
+  GC: { number: 8, datatype: 1 }
 
 cases:
   - name: pass_w1p1
-    width_um: 1.1
-    height_um: 10.0
+    shapes:
+      GC: 
+      - [0, 0, 1.1, 30]
     expected_violations: 0
 
   - name: edge_w1p0
-    width_um: 1.0
-    height_um: 10.0
+    shapes:
+      GC: 
+      - [0, 0, 1.0, 30]
     expected_violations: 0
 
   - name: fail_w0p95
-    width_um: 0.95
-    height_um: 10.0
-    expected_violations: 1
+    shapes:
+      GC: 
+      - [0, 0, 0.95, 30]
+    expected_violations: 1  
+
+  - name: fail_w0p95_double
+    shapes:
+      GC: 
+      - [0,  0,  0.95, 30]
+      - [10, 0, 10.95, 30]
+    expected_violations: 2  
 
