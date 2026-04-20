@@ -1,0 +1,11 @@
+# Categories for unit tests 
+#
+Cat-1: Prohibited
+Cat-2: WN-AC/AR related
+Cat-3: AP/AN/DP/DN related
+Cat-4: GC/CO related
+Cat-5: AC/AR/GR related
+Cat-6: BEOL related
+Cat-7: ESD related
+Cat-8: PAD related
+Cat-9: Electrical / Optional
