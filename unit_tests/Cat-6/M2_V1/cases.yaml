@@ -1,0 +1,49 @@
+rule_id: M2.V1
+
+layers:
+  # V1レイヤー: 19番, Datatype 0
+  V1: { number: 19, datatype: 0 }
+  # M2レイヤー: 20番, Datatype 0
+  M2: { number: 20, datatype: 0 }
+
+allow_other_rules: false
+# V1, M1, M2の各単体ルールや、構造エラー(ビア浮き等)を徹底的に無視
+waive_rule_ids:
+  - V1.W1
+  - V1.S1
+  - V1.M1
+  - M2.W1
+  - M2.S1
+  - V1.Z1
+  - V1.Z2
+
+cases:
+  - name: pass_overlap_1p0
+    shapes:
+      V1:
+        # V1ビア (1.4 x 1.4)
+        - [10.0, 10.0, 11.4, 11.4]
+      M2:
+        # 基準寸法 1.0 を確保して囲む (10.0-1.0=9.0, 11.4+1.0=12.4)
+        - [9.0, 9.0, 12.4, 12.4]
+    expected_violations: 0
+
+  - name: fail_overlap_0p95_all
+    shapes:
+      V1:
+        - [10.0, 10.0, 11.4, 11.4]
+      M2:
+        # 全辺で 0.05 ずらして 0.95 にする (10.0-0.95=9.05, 11.4+0.95=12.35)
+        - [9.05, 9.05, 12.35, 12.35]
+    # 全辺(4辺)で違反するため 4
+    expected_violations: 4
+
+  - name: fail_overlap_0p95_single
+    shapes:
+      V1:
+        - [10.0, 10.0, 11.4, 11.4]
+      M2:
+        # 下辺(Ymin)のみ 0.95 にし、他は 1.0 確保
+        - [9.0, 9.05, 12.4, 12.4]
+    # 1辺のみ違反するため 1
+    expected_violations: 1

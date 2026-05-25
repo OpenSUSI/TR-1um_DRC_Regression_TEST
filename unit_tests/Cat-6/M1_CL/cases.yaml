@@ -1,0 +1,59 @@
+rule_id: M1.CL
+
+layers:
+  M1: { number: 13, datatype: 0 }
+  CO: { number: 11, datatype: 0 }
+  AR: { number:  3, datatype: 3 }
+  GC: { number:  8, datatype: 1 }
+
+allow_other_rules: false
+# ARやGCの形状・サイズに関するエラーはすべてここで無視する
+waive_rule_ids:
+  - AR.XY
+  - AR.L1
+  - GC.R1
+  - GC.R2
+  - CR.AT
+
+cases:
+  - name: pass_enclose_1p2
+    shapes:
+      AR:
+        # 八角形をやめてシンプルな四角形に
+        - [-5.0, -5.0, 25.0, 25.0]
+      GC:
+        # ドーナツ型をやめて、ARを覆うシンプルな四角形に
+        - [-8.0, -8.0, 28.0, 28.0]
+      CO:
+        # 中心に4x4の大きなコンタクト(CO(L))
+        - [8.0, 8.0, 12.0, 12.0]
+      M1:
+        # COをぴったり 1.2 囲む (8.0-1.2=6.8, 12.0+1.2=13.2)
+        - [6.8, 6.8, 13.2, 13.2]
+    expected_violations: 0
+
+  - name: fail_enclose_1p15_all
+    shapes:
+      AR:
+        - [-5.0, -5.0, 25.0, 25.0]
+      GC:
+        - [-8.0, -8.0, 28.0, 28.0]
+      CO:
+        - [8.0, 8.0, 12.0, 12.0]
+      M1:
+        # 上下左右すべてで 1.15 しか囲んでいない (違反数: 4)
+        - [6.85, 6.85, 13.15, 13.15]
+    expected_violations: 4
+
+  - name: fail_enclose_1p15_single
+    shapes:
+      AR:
+        - [-5.0, -5.0, 25.0, 25.0]
+      GC:
+        - [-8.0, -8.0, 28.0, 28.0]
+      CO:
+        - [8.0, 8.0, 12.0, 12.0]
+      M1:
+        # 下辺だけ 1.15 で、他は 1.2 確保している (違反数: 1)
+        - [6.8, 6.85, 13.2, 13.2]
+    expected_violations: 1

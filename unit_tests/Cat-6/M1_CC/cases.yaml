@@ -1,0 +1,51 @@
+rule_id: M1.CC
+
+layers:
+  M1: { number: 13, datatype: 0 }
+  CO: { number: 11, datatype: 0 }
+  AC: { number:  3, datatype: 4 } # COをCO(C)と認識させるための下地
+
+allow_other_rules: false
+# キャパシタ下地(AC)の形状や、サイズエラー、および連鎖して発生するM1.CLを無視リストに登録
+waive_rule_ids:
+  - AC.W1
+  - AC.S1
+  - AC.R1
+  - CO.Z1
+  - M1.CL
+
+cases:
+  - name: pass_enclose_1p2
+    shapes:
+      AC:
+        # CO(C)と認識させるための下地(広めに配置)
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        # CC.W1(最小幅1.2)を満たす 1.2 x 1.2 のコンタクト
+        - [10.0, 10.0, 11.2, 11.2]
+      M1:
+        # 基準寸法 1.2 を確保 (10.0-1.2=8.8, 11.2+1.2=12.4)
+        - [8.8, 8.8, 12.4, 12.4]
+    expected_violations: 0
+
+  - name: fail_enclose_1p15_all
+    shapes:
+      AC:
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        - [10.0, 10.0, 11.2, 11.2]
+      M1:
+        # 全辺で 1.15 の違反 (10.0-1.15=8.85, 11.2+1.15=12.35)
+        - [8.85, 8.85, 12.35, 12.35]
+    expected_violations: 4
+
+  - name: fail_enclose_1p15_single
+    shapes:
+      AC:
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        - [10.0, 10.0, 11.2, 11.2]
+      M1:
+        # 下辺(Ymin)のみ 1.15、他は 1.2 確保 (違反数: 1)
+        - [8.8, 8.85, 12.4, 12.4]
+    expected_violations: 1

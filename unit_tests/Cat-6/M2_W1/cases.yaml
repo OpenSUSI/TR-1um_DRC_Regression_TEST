@@ -1,0 +1,33 @@
+rule_id: M2.W1
+
+layers:
+  M2: { number: 20, datatype: 0 }
+
+allow_other_rules: false
+# M2のスペースエラー(M2.S1)など、配線幅チェックに無関係なエラーを無視
+waive_rule_ids:
+  - M2.S1
+
+cases:
+  - name: pass_width_3p0
+    shapes:
+      M2:
+        # 基準寸法 3.0 を満たす配線
+        - [0.0, 0.0, 3.0, 30.0]
+    expected_violations: 0
+
+  - name: fail_width_2p95_single
+    shapes:
+      M2:
+        # 幅が 2.95 しかない配線 (違反数: 1)
+        - [0.0, 0.0, 2.95, 30.0]
+    expected_violations: 1
+
+  - name: fail_width_2p95_double
+    shapes:
+      M2:
+        # 1つ目の配線 (幅 2.95)
+        - [0.0, 0.0, 2.95, 30.0]
+        # 2つ目の配線 (幅 2.95)
+        - [10.0, 0.0, 12.95, 30.0]
+    expected_violations: 2

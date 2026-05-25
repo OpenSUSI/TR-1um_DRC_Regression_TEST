@@ -1,0 +1,74 @@
+rule_id: M1.SC
+
+layers:
+  M1: { number: 13, datatype: 0 }
+  AC: { number: 3, datatype: 4 }
+  WN: { number: 140, datatype: 0 }
+  AN: { number: 3, datatype: 2 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - M1.W1
+  - M1.S1
+  - AC.W1
+  - AC.S1
+  - AC.WC
+  - AC.R1
+  - WN.W1
+  - WN.S1
+  - WN.S6
+  - WN.Z1
+  - WN.Z2
+  - WN.Z3
+  - AN.W1
+  - AN.S1
+  - AN.WC
+  - WN.AN
+  - DN.AN
+
+cases:
+  - name: pass_space_10p0
+    shapes:
+      M1:
+        # 隙間ぴったり 10.0 (5.0 + 10.0 = 15.0)
+        - [0.0, 0.0, 5.0, 20.0]
+        - [15.0, 0.0, 20.0, 20.0]
+      AN:
+        # M1を囲む (一番内側の土台)
+        - [-10.0, -10.0, 30.0, 30.0]
+      AC:
+        # ANを完全に囲む (AC > AN) これでAC.R1は絶対に出ません！
+        - [-20.0, -20.0, 40.0, 40.0]
+      WN:
+        # ACを完全に囲む (一番外側のウェル)
+        - [-30.0, -30.0, 50.0, 50.0]
+    expected_violations: 0
+
+  - name: fail_space_9p95_single
+    shapes:
+      M1:
+        # 隙間 9.95
+        - [0.0, 0.0, 5.0, 20.0]
+        - [14.95, 0.0, 19.95, 20.0]
+      AN:
+        - [-10.0, -10.0, 30.0, 30.0]
+      AC:
+        - [-20.0, -20.0, 40.0, 40.0]
+      WN:
+        - [-30.0, -30.0, 50.0, 50.0]
+    expected_violations: 1
+
+  - name: fail_space_9p95_double
+    shapes:
+      M1:
+        # 隙間 9.95 が2箇所
+        - [-14.95, 0.0, -9.95, 20.0]
+        - [0.0, 0.0, 5.0, 20.0]
+        - [14.95, 0.0, 19.95, 20.0]
+      AN:
+        - [-20.0, -10.0, 30.0, 30.0] # 左のM1(-14.95)も囲むように少し左に拡張
+      AC:
+        - [-30.0, -20.0, 40.0, 40.0]
+      WN:
+        - [-40.0, -30.0, 50.0, 50.0]
+    expected_violations: 2

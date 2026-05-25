@@ -1,0 +1,74 @@
+rule_id: V1.CL
+
+layers:
+  # V1レイヤー: 19番, Datatype 0
+  V1: { number: 19, datatype: 0 }
+  # COレイヤー: 11番, Datatype 0
+  CO: { number: 11, datatype: 0 }
+  # ARレイヤー: 3番, Datatype 3 (CO large判定用)
+  AR: { number: 3, datatype: 3 }
+
+allow_other_rules: false
+# V1, CO, ARそれぞれの単体ルール、構造エラー(浮きエラー等)、および
+# AR追加に伴うエンクロージャー違反等をすべて無視リストに登録
+waive_rule_ids:
+  - V1.W1
+  - V1.S1
+  - V1.M1
+  - V1.M2
+  - V1.Z1
+  - V1.Z2
+  - V1.CO
+  - CO.W1
+  - CO.S1
+  - CO.Z1
+  - CO.Z3
+  - AR.L1
+  - AR.XY
+  - CR.AS
+  - CR.AT
+  - GC.R1
+
+cases:
+  - name: pass_space_1p4
+    shapes:
+      V1:
+        # 1つ目: V1ビア (1.4 x 1.4)
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # 2つ目: 大きなコンタクト (10.0 x 10.0) / 基準寸法 1.4 を確保 (1.4 + 1.4 = 2.8)
+        - [2.8, 0.0, 12.8, 10.0]
+      AR:
+        # CO large判定用にCOと完全に同じ座標に配置
+        - [2.8, 0.0, 12.8, 10.0]
+    expected_violations: 0
+
+  - name: fail_space_1p35_single
+    shapes:
+      V1:
+        # 1つ目のV1ビア
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # 2つ目: 大きなコンタクト / 隙間を 0.05 ずらして 1.35 にする (1.4 + 1.35 = 2.75)
+        - [2.75, 0.0, 12.75, 10.0]
+      AR:
+        # CO large判定用にCOと完全に同じ座標に配置
+        - [2.75, 0.0, 12.75, 10.0]
+    expected_violations: 1
+
+  - name: fail_space_1p35_double
+    shapes:
+      V1:
+        # 中央のV1ビア
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # 右側の大きなコンタクト (隙間 1.35)
+        - [2.75, 0.0, 12.75, 10.0]
+        # 左側の大きなコンタクト (隙間 1.35 -> 0.0 - 1.35 = -1.35。幅10.0なので -11.35 からスタート)
+        - [-11.35, 0.0, -1.35, 10.0]
+      AR:
+        # 右側のCO large判定用AR
+        - [2.75, 0.0, 12.75, 10.0]
+        # 左側のCO large判定用AR
+        - [-11.35, 0.0, -1.35, 10.0]
+    expected_violations: 2

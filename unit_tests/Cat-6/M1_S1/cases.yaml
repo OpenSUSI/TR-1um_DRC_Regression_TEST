@@ -1,0 +1,38 @@
+rule_id: M1.S1
+
+layers:
+  M1: { number: 13, datatype: 0 }
+
+allow_other_rules: false
+# M1の最小幅エラー(M1.W1)など、スペースチェックに無関係なエラーを念のため無視
+waive_rule_ids:
+  - M1.W1
+
+cases:
+  - name: pass_space_1p4
+    shapes:
+      M1:
+        # 1つ目のM1配線 (幅を十分に広く取る)
+        - [0.0, 0.0, 10.0, 30.0]
+        # 2つ目のM1配線 (基準寸法 1.4 を確保 -> 10.0 + 1.4 = 11.4)
+        - [11.4, 0.0, 21.4, 30.0]
+    expected_violations: 0
+
+  - name: fail_space_1p35_single
+    shapes:
+      M1:
+        - [0.0, 0.0, 10.0, 30.0]
+        # 隙間を 1.35 しか確保していない (10.0 + 1.35 = 11.35)
+        - [11.35, 0.0, 21.35, 30.0]
+    expected_violations: 1
+
+  - name: fail_space_1p35_double
+    shapes:
+      M1:
+        # 中央の配線
+        - [0.0, 0.0, 10.0, 30.0]
+        # 右側の配線 (隙間 1.35)
+        - [11.35, 0.0, 21.35, 30.0]
+        # 左側の配線 (隙間 1.35 -> 0.0 - 1.35 = -1.35。幅10.0なので -11.35 からスタート)
+        - [-11.35, 0.0, -1.35, 30.0]
+    expected_violations: 2

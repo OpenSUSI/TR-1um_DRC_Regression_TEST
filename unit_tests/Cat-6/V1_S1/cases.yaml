@@ -1,0 +1,44 @@
+rule_id: V1.S1
+
+layers:
+  # V1レイヤー: 19番, Datatype 0
+  V1: { number: 19, datatype: 0 }
+
+allow_other_rules: false
+# ビアのサイズ(V1.W1)や囲み不足(V1.M1, V1.M2)、ビア浮きエラー(V1.Z1, V1.Z2)を無視
+waive_rule_ids:
+  - V1.W1
+  - V1.M1
+  - V1.M2
+  - V1.Z1
+  - V1.Z2
+
+cases:
+  - name: pass_space_1p5
+    shapes:
+      V1:
+        # 1つ目のビア (1.4 x 1.4)
+        - [0.0, 0.0, 1.4, 1.4]
+        # 2つ目のビア (1.4 x 1.4) / 基準寸法 1.5 を確保 (1.4 + 1.5 = 2.9)
+        - [2.9, 0.0, 4.3, 1.4]
+    expected_violations: 0
+
+  - name: fail_space_1p45_single
+    shapes:
+      V1:
+        # 1つ目のビア
+        - [0.0, 0.0, 1.4, 1.4]
+        # 2つ目のビア / 隙間を 0.05 ずらして 1.45 にする (1.4 + 1.45 = 2.85)
+        - [2.85, 0.0, 4.25, 1.4]
+    expected_violations: 1
+
+  - name: fail_space_1p45_double
+    shapes:
+      V1:
+        # 中央のビア
+        - [0.0, 0.0, 1.4, 1.4]
+        # 右側のビア (隙間 1.45)
+        - [2.85, 0.0, 4.25, 1.4]
+        # 左側のビア (隙間 1.45 -> 0.0 - 1.45 = -1.45。幅1.4なので -2.85 からスタート)
+        - [-2.85, 0.0, -1.45, 1.4]
+    expected_violations: 2

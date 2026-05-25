@@ -1,0 +1,54 @@
+rule_id: V1.CO
+
+layers:
+  # V1レイヤー: 19番, Datatype 0
+  V1: { number: 19, datatype: 0 }
+  # COレイヤー: 11番, Datatype 0
+  CO: { number: 11, datatype: 0 }
+
+allow_other_rules: false
+# V1とCOそれぞれの単体ルール(幅や同層間隔)、および浮きエラー等を徹底的に無視
+waive_rule_ids:
+  - V1.W1
+  - V1.S1
+  - V1.M1
+  - V1.M2
+  - V1.Z1
+  - V1.Z2
+  - CO.W1
+  - CO.S1
+  - CO.Z1  # COがActive等に乗っていないエラーを想定してWaive
+  - CO.Z3  # ← 追加：上にM1がないエラー
+  - M1.CO  # COがM1に覆われていないエラーを想定してWaive
+
+cases:
+  - name: pass_space_1p0
+    shapes:
+      V1:
+        # V1ビア (1.4 x 1.4)
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # COコンタクト (仮で 1.0 x 1.0) / 基準寸法 1.0 を確保 (1.4 + 1.0 = 2.4)
+        - [2.4, 0.0, 3.4, 1.0]
+    expected_violations: 0
+
+  - name: fail_space_0p95_single
+    shapes:
+      V1:
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # 隙間を 0.05 ずらして 0.95 にする (1.4 + 0.95 = 2.35)
+        - [2.35, 0.0, 3.35, 1.0]
+    expected_violations: 1
+
+  - name: fail_space_0p95_double
+    shapes:
+      V1:
+        # 中央のV1ビア
+        - [0.0, 0.0, 1.4, 1.4]
+      CO:
+        # 右側のCO (隙間 0.95)
+        - [2.35, 0.0, 3.35, 1.0]
+        # 左側のCO (隙間 0.95 -> 0.0 - 0.95 = -0.95。幅1.0なので -1.95 からスタート)
+        - [-1.95, 0.0, -0.95, 1.0]
+    expected_violations: 2
