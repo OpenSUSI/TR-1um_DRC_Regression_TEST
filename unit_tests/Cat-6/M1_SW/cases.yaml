@@ -1,6 +1,7 @@
 rule_id: M1.SW
 
 layers:
+  # M1レイヤー: 13番, Datatype 0
   M1: { number: 13, datatype: 0 }
 
 allow_other_rules: false
@@ -38,3 +39,12 @@ cases:
         # 左側の通常配線 (幅3.0, 隙間 1.5 -> 0.0 - 1.5 = -1.5。幅3.0なので -4.5 からスタート)
         - [-4.5, 0.0, -1.5, 200.0]
     expected_violations: 2
+
+  - name: fail_space_1p95_single
+    shapes:
+      M1:
+        # 確実にWIDEな配線 (200.0 x 200.0)
+        - [0.0, 0.0, 200.0, 200.0]
+        # 通常の配線 (幅3.0) / 隙間を 1.95 にする (200.0 + 1.95 = 201.95)
+        - [201.95, 0.0, 204.95, 200.0]
+    expected_violations: 1

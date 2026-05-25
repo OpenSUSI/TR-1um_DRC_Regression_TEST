@@ -1,0 +1,35 @@
+rule_id: V1.W1
+layers:
+  # V1レイヤー: 19番, Datatype 0
+  V1: { number: 19, datatype: 0 }
+
+allow_other_rules: false
+# ビアのスペース(V1.S1)や囲み不足(V1.M1, V1.M2)、ビア浮きエラー(V1.Z1, V1.Z2)を無視
+waive_rule_ids:
+  - V1.S1
+  - V1.M1
+  - V1.M2
+  - V1.Z1
+  - V1.Z2
+
+cases:
+  - name: pass_width_1p4
+    shapes:
+      V1:
+        # 基準値通り (1.4 x 1.4)
+        - [0.0, 0.0, 1.4, 1.4]
+    expected_violations: 0
+
+  - name: fail_width_1p35
+    shapes:
+      V1:
+        # 基準値より小さい (1.35 x 1.35)
+        - [0.0, 0.0, 1.35, 1.35]
+    expected_violations: 1
+
+  - name: fail_width_1p55
+    shapes:
+      V1:
+        # 基準値より大きい (1.5 x 1.5)
+        - [0.0, 0.0, 1.55, 1.55]
+    expected_violations: 1
