@@ -1,5 +1,5 @@
 .DS_Store
-scripts/__pycache__% 
+scripts/__pycache__/
 generated/
 reports/
 tmp/
