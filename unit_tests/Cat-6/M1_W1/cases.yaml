@@ -3,28 +3,31 @@ rule_id: M1.W1
 layers:
   M1: { number: 13, datatype: 0 }
 
+allow_other_rules: false
+# M1のスペースエラー(M1.S1)など、配線幅チェックに無関係なエラーを無視
+waive_rule_ids:
+  - M1.S1
+
 cases:
-  - name: pass_w1p9
+  - name: pass_width_1p8
     shapes:
       M1:
-      - [0, 0, 1.9, 10.0]
+        # 基準寸法 1.8 を満たす配線
+        - [0.0, 0.0, 1.8, 30.0]
     expected_violations: 0
 
-  - name: edge_w1p8
+  - name: fail_width_1p75_single
     shapes:
       M1:
-      - [0, 0, 1.8, 5.0]
-    expected_violations: 0
-
-  - name: fail_w1p75
-    shapes:
-      M1:
-      - [0, 0, 1.75, 10.0]
+        # 幅が 1.75 しかない配線 (違反数: 1)
+        - [0.0, 0.0, 1.75, 30.0]
     expected_violations: 1
 
-  - name: fail_w1p75_double
+  - name: fail_width_1p75_double
     shapes:
       M1:
-      - [ 0, 0,  1.75, 10.0]
-      - [10, 0, 11.75, 10.0]
+        # 1つ目: 幅 1.75 の配線
+        - [0.0, 0.0, 1.75, 30.0]
+        # 2つ目: 幅 1.75 の配線 (スペースエラーが出ないよう10.0離して配置)
+        - [10.0, 0.0, 11.75, 30.0]
     expected_violations: 2

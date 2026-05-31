@@ -42,7 +42,7 @@ def eval_expr(expr: object) -> float:
                 return float(n.value)
             raise ValueError(f"unsupported constant: {n.value}")
 
-        if isinstance(n, ast.Num):
+        if isinstance(n, ast.Constant):
             return float(n.n)
 
         if isinstance(n, ast.BinOp):

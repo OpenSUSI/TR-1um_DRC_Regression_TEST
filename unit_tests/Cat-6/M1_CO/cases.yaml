@@ -1,0 +1,48 @@
+rule_id: M1.CO
+
+layers:
+  M1: { number: 13, datatype: 0 }
+  CO: { number: 11, datatype: 0 }
+  GC: { number:  8, datatype: 1 } # コンタクト浮きエラーを防ぐための下地
+
+allow_other_rules: false
+# コンタクト下地(GC)のサイズエラーや、浮きコンタクト判定を無視リストに登録
+waive_rule_ids:
+  - CO.Z1
+  - GC.W1
+
+cases:
+  - name: pass_enclose_0p8
+    shapes:
+      GC:
+        # COが正しく認識されるための下地(広めに配置)
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        # CO.W1(最小幅1.0)を満たす 1.0 x 1.0 のコンタクト
+        - [10.0, 10.0, 11.0, 11.0]
+      M1:
+        # 基準寸法 0.8 を確保 (10.0-0.8=9.2, 11.0+0.8=11.8)
+        - [9.2, 9.2, 11.8, 11.8]
+    expected_violations: 0
+
+  - name: fail_enclose_0p75_all
+    shapes:
+      GC:
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        - [10.0, 10.0, 11.0, 11.0]
+      M1:
+        # 全辺で 0.75 の違反 (10.0-0.75=9.25, 11.0+0.75=11.75)
+        - [9.25, 9.25, 11.75, 11.75]
+    expected_violations: 4
+
+  - name: fail_enclose_0p75_single
+    shapes:
+      GC:
+        - [5.0, 5.0, 16.0, 16.0]
+      CO:
+        - [10.0, 10.0, 11.0, 11.0]
+      M1:
+        # 下辺(Ymin)のみ 0.75、他は 0.8 確保 (違反数: 1)
+        - [9.2, 9.25, 11.8, 11.8]
+    expected_violations: 1

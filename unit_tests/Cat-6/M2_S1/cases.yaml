@@ -1,0 +1,39 @@
+rule_id: M2.S1
+
+layers:
+  # M2レイヤー: 20番, Datatype 0
+  M2: { number: 20, datatype: 0 }
+
+allow_other_rules: false
+# M2の最小幅エラー(M2.W1)など、スペースチェックに直接関係のないエラーを無視リストに登録
+waive_rule_ids:
+  - M2.W1
+
+cases:
+  - name: pass_space_2p0
+    shapes:
+      M2:
+        # 1つ目のM2配線 (幅を十分に広く取る)
+        - [0.0, 0.0, 10.0, 30.0]
+        # 2つ目のM2配線 (基準寸法 2.0 を確保 -> 10.0 + 2.0 = 12.0)
+        - [12.0, 0.0, 22.0, 30.0]
+    expected_violations: 0
+
+  - name: fail_space_1p95_single
+    shapes:
+      M2:
+        - [0.0, 0.0, 10.0, 30.0]
+        # 隙間を 1.95 しか確保していない (10.0 + 1.95 = 11.95)
+        - [11.95, 0.0, 21.95, 30.0]
+    expected_violations: 1
+
+  - name: fail_space_1p95_double
+    shapes:
+      M2:
+        # 中央の配線
+        - [0.0, 0.0, 10.0, 30.0]
+        # 右側の配線 (隙間 1.95)
+        - [11.95, 0.0, 21.95, 30.0]
+        # 左側の配線 (隙間 1.95 -> 0.0 - 1.95 = -1.95。幅10.0なので -11.95 からスタート)
+        - [-11.95, 0.0, -1.95, 30.0]
+    expected_violations: 2
