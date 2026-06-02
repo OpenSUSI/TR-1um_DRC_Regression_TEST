@@ -1,0 +1,36 @@
+rule_id: V1.Z2
+
+layers:
+  V1: { number: 19, datatype: 0 }
+  M1: { number: 13, datatype: 0 } # V1.Z1（床なしエラー）を防ぐための土台
+  M2: { number: 20, datatype: 0 } # 今回の主役（フタ）
+
+allow_other_rules: false
+waive_rule_ids:
+  # 各レイヤーの単体エラーや、囲み不足エラー等をすべて無視
+  - V1.W1
+  - V1.S1
+  - V1.Z1 # 念のためZ1も無視に入れておきます
+  - V1.M1 # M1がV1を囲むマージン不足エラーを無視
+  - V1.M2 # M2がV1を囲むマージン不足エラーを無視
+  - M1.W1
+  - M1.S1
+  - M2.W1
+  - M2.S1
+
+cases:
+  # パターン1：V1の上下にM1(床)とM2(フタ)が正しくある状態（PASS）
+  - name: pass_V1_with_M2
+    shapes:
+      M1: [-10, -10, 10, 10] # 床
+      V1: [-2, -2, 2, 2]     # ビア
+      M2: [-10, -10, 10, 10] # フタ（これで V1.Z2 がPASS！）
+    expected_violations: 0
+
+  # パターン2：V1の上にM2がない（上に繋がっていない浮きビア = FAIL）
+  - name: fail_V1_without_M2
+    shapes:
+      M1: [-10, -10, 10, 10] # 床（床はあるので V1.Z1 は回避）
+      V1: [-2, -2, 2, 2]     # ビア
+      # 意図的に M2(フタ) を配置しません！（これで V1.Z2 が発火します）
+    expected_violations: 1

@@ -1,0 +1,36 @@
+rule_id: WN.Z2
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AP: { number:  3, datatype: 1 }
+  AN: { number:  3, datatype: 2 }
+  AC: { number:  3, datatype: 4 } # WN(C)を認識させるためにAC層を追加！
+
+allow_other_rules: false
+waive_rule_ids:
+  # 重ねることによって発生する単体エラーをすべて無視
+  - WN.W1
+  - WN.S1
+  - WN.S6
+  - AC.W1
+  - AC.S1
+  - AN.W1
+  - AN.S1
+  - AP.W1
+  - AP.S1
+  - AC.R1
+
+cases:
+  - name: pass_WN_C_AN
+    shapes:
+      WN: [-30, -30, 30, 30]
+      AC: [-15, -15, 15, 15] # WNの中にACを敷くことで、これが「WN(C)」に認定されます！
+      AN: [-10, -10, 10, 10] # WN(C)の上にANを置くのは安全（PASS）
+    expected_violations: 0
+
+  - name: fail_WN_C_AP
+    shapes:
+      WN: [-30, -30, 30, 30]
+      AC: [-15, -15, 15, 15] # WNの中にACを敷くことで、これが「WN(C)」に認定されます！
+      AP: [-10, -10, 10, 10] # 禁忌である「WN(C)の上のAP」を配置（これでWN.Z2が完璧に発火！）
+    expected_violations: 1

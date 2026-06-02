@@ -1,0 +1,29 @@
+rule_id: V1.Z1
+
+layers:
+  V1: { number: 19, datatype: 0 }
+  M1: { number: 13, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # 単体エラーや、上にM2を被せていないことで必ず出るエラー(V1.Z2)を先回りして無視！
+  - V1.W1
+  - V1.S1
+  - V1.Z2
+  - M1.W1
+  - M1.S1
+
+cases:
+  # パターン1：V1の下にM1が正しく敷かれている状態（PASS）
+  - name: pass_V1_on_M1
+    shapes:
+      M1: [-10, -10, 10, 10] # 土台となるM1配線
+      V1: [-2, -2, 2, 2]     # その上にV1を配置（安全 = PASS）
+    expected_violations: 0
+
+  # パターン2：V1の下にM1がない（宙に浮いたV1 = FAIL）
+  - name: fail_V1_floating
+    shapes:
+      # 意図的に M1 を配置しない！
+      V1: [-2, -2, 2, 2]     # 何もない空間にV1だけを配置（これで V1.Z1 が発火！）
+    expected_violations: 1
