@@ -1,0 +1,33 @@
+rule_id: CO.Z3
+
+layers:
+  CO: { number: 11, datatype: 0 }
+  M1: { number: 13, datatype: 0 }
+  GC: { number:  8, datatype: 1 } # CO.Z1（下地なしエラー）を防ぐための土台として使用
+
+allow_other_rules: false
+waive_rule_ids:
+  # COとM1の単体サイズ・間隔ルールや、エンクロージャー（囲み）ルールをあらかじめ無視
+  - CO.W1
+  - CO.S1
+  - M1.W1
+  - M1.S1
+  - M1.CO # M1がCOを規定値以上囲んでいないと出るエラーを無視
+  - GC.W1
+
+cases:
+  # パターン1：COの上にM1が正しく乗っている状態（PASS）
+  - name: pass_CO_with_M1
+    shapes:
+      GC: [-15, -15, 15, 15] # 土台
+      CO: [-2, -2, 2, 2]     # コンタクト
+      M1: [-5, -5, 5, 5]     # COをしっかりと覆うM1のフタ（これでPASS！）
+    expected_violations: 0
+
+  # パターン2：COの上にM1がない（上の繋がりがない浮きコンタクト = FAIL）
+  - name: fail_CO_without_M1
+    shapes:
+      GC: [-15, -15, 15, 15] # 土台
+      CO: [-2, -2, 2, 2]     # コンタクト
+      # 意図的に M1 を配置しません！（これで CO.Z3 が発火します）
+    expected_violations: 1

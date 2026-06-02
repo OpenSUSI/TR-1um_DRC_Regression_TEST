@@ -1,0 +1,3 @@
+[submodule "external/TR-1um"]
+	path = external/TR-1um
+	url = https://github.com/OpenSUSI/TR-1um.git

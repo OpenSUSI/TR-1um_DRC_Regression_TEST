@@ -1,0 +1,31 @@
+rule_id: PO.Z2
+
+layers:
+  PO: { number: 14, datatype: 0 } # 教えていただいた正しい番号を適用！
+  M2: { number: 20, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # POの単体エラーや、M1・V1を置いていないことで必ず出るエラー(PO.Z1, PO.Z3)を無視
+  - PO.W1
+  - PO.S1
+  - PO.Z1
+  - PO.Z3
+  - M2.W1
+  - M2.S1
+  - M2.PO # M2がPOを囲むマージン不足エラーを想定して無視
+
+cases:
+  # パターン1：POの下にM2の土台が正しく敷かれている状態（PASS）
+  - name: pass_PO_on_M2
+    shapes:
+      M2: [-30, -30, 30, 30] # パッドを支える強固なM2の土台
+      PO: [-15, -15, 15, 15] # 土台の上に開口されたPO（安全 = PASS）
+    expected_violations: 0
+
+  # パターン2：POの下にM2がない（土台のない危険なPO = FAIL）
+  - name: fail_PO_without_M2
+    shapes:
+      # 意図的に M2 の土台を配置しない！
+      PO: [-15, -15, 15, 15] # M2がない空間にPOだけを配置（これで PO.Z2 が発火！）
+    expected_violations: 1

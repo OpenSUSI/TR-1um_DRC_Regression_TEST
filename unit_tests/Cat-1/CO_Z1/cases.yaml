@@ -1,0 +1,80 @@
+rule_id: CO.Z1
+
+layers:
+  CO: { number: 11, datatype: 0 }
+  GC: { number:  8, datatype: 1 }
+  GR: { number:  8, datatype: 2 }
+  AP: { number:  3, datatype: 1 }
+  AN: { number:  3, datatype: 2 }
+  AR: { number:  3, datatype: 3 }
+  AC: { number:  3, datatype: 4 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # これまでのテストで判明した単体・連鎖エラーをすべて無視リストに登録
+  - CO.W1
+  - CO.S1
+  - CO.Z3
+  - GC.W1
+  - GC.S1
+  - GC.R1
+  - GR.W1
+  - GR.S1
+  - AP.W1
+  - AP.S1
+  - AN.W1
+  - AN.S1
+  - AR.W1
+  - AR.S1
+  - AR.XY
+  - AC.W1
+  - AC.S1
+  - AC.R1
+  - CO.WD
+
+cases:
+  # パターン1〜4：AAの構成要素（AP, AN, AR, AC）それぞれの上にCOを配置するケース
+  - name: pass_CO_on_AP
+    shapes:
+      AP: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  - name: pass_CO_on_AN
+    shapes:
+      AN: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  - name: pass_CO_on_AR
+    shapes:
+      AR: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  - name: pass_CO_on_AC
+    shapes:
+      AC: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  # パターン5：GCの上にCOを配置するケース
+  - name: pass_CO_on_GC
+    shapes:
+      GC: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  # パターン6：GRの上にCOを配置するケース
+  - name: pass_CO_on_GR
+    shapes:
+      GR: [-15, -15, 15, 15]
+      CO: [-2, -2, 2, 2]
+    expected_violations: 0
+
+  # パターン7：何の上にも載っていない（浮きコンタクト = FAILするはず）
+  - name: fail_CO_floating
+    shapes:
+      # 下地を何も配置しない
+      CO: [-2, -2, 2, 2]
+    expected_violations: 1
