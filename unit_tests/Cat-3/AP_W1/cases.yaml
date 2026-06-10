@@ -1,0 +1,32 @@
+rule_id: AP.W1
+
+layers:
+  AP: { number: 3, datatype: 1 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - AP.S1  # AP同士のスペースエラーを無視
+
+cases:
+  # 正常系：幅がぴったり1.40（最小値クリア）
+  - name: pass_width_1p40
+    shapes:
+      AP: 
+        - [0.0, 0.0, 1.4, 10.0]
+    expected_violations: 0
+
+  # 異常系：幅が1.35（0.05足りないためエラーが1つ）
+  - name: fail_width_1p35_single
+    shapes:
+      AP: 
+        - [0.0, 0.0, 1.35, 10.0]
+    expected_violations: 1
+
+  # 異常系：幅が1.35の図形が2つ（エラーが2つ検知されるか確認）
+  - name: fail_width_1p35_double
+    shapes:
+      AP: 
+        - [0.0, 0.0, 1.35, 10.0]
+        # スペースエラーにならないよう、X座標を5.0離して配置
+        - [5.0, 0.0, 6.35, 10.0] 
+    expected_violations: 2
