@@ -1,0 +1,44 @@
+rule_id: AC.AN
+
+layers:
+  AC: { number:  3, datatype: 4 }
+  AN: { number:  3, datatype: 2 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - AC.W1
+  - AC.S1
+  - AN.W1
+  - AN.S1
+  - AC.R1
+
+cases:
+  # パターン1：ACとANの隙間が 3.0 (PASS)
+  - name: pass_space_3p0
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      AN:
+        - [13.0, 0.0, 23.0, 10.0]
+    expected_violations: 0
+
+  # パターン2：ACの右側のみ隙間が 2.75 (FAIL: シングル違反)
+  - name: fail_space_2p75_single
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      AN:
+        - [12.75, 0.0, 22.75, 10.0]
+    expected_violations: 1
+
+  # パターン3：ACの左右両方の隙間が 2.75 (FAIL: ダブル違反)
+  - name: fail_space_2p75_double
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      AN:
+        # 右側のAN (隙間 2.75)
+        - [12.75, 0.0, 22.75, 10.0]
+        # 左側のAN (隙間 2.75) -> Xの最大値が -2.75
+        - [-12.75, 0.0, -2.75, 10.0]
+    expected_violations: 2

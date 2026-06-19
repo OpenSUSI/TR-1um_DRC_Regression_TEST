@@ -1,0 +1,44 @@
+rule_id: AC.GC
+
+layers:
+  AC: { number:  3, datatype: 4 }
+  GC: { number:  8, datatype: 1 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # 単体サイズ・間隔エラーや、AC/GCを単独で置いた際に発生しうる他の構造エラーを無視
+  - AC.W1
+  - AC.S1
+  - GC.W1
+  - GC.S1
+  - AC.R1 # ACの周りにANがないエラーなどを想定して無視
+  - GC.R1 # GCに関する別の囲みルール等を想定して無視
+  - GC.R2
+
+cases:
+  # パターン1：GC が AC をピッタリ 1.4 囲んでいる状態（PASS）
+  - name: pass_enclose_1p4
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      GC: # ACより全辺 1.4 大きく配置 (0.0-1.4=-1.4, 10.0+1.4=11.4)
+        - [-1.4, -1.4, 11.4, 11.4]
+    expected_violations: 0
+
+  # パターン2：GC の囲みが 1.35 しかない（4辺すべてで囲み不足 = FAIL）
+  - name: fail_enclose_1p35_all
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      GC: # 全辺のマージンを 1.35 に縮小
+        - [-1.35, -1.35, 11.35, 11.35]
+    expected_violations: 4
+
+  # パターン3：GC の左辺だけ囲みが 1.35 しかない（1辺のみ囲み不足 = FAIL）
+  - name: fail_enclose_1p35_single
+    shapes:
+      AC:
+        - [0.0, 0.0, 10.0, 10.0]
+      GC: # Xの最小値(左辺)だけ -1.35、それ以外は 1.4 マージンを確保
+        - [-1.35, -1.4, 11.4, 11.4]
+    expected_violations: 1

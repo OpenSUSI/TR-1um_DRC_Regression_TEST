@@ -1,0 +1,53 @@
+rule_id: AN.WC
+
+layers:
+  AN: { number:  3, datatype: 2 }
+  WN: { number: 140, datatype: 0 }
+  AC: { number:  3, datatype: 4 } # WN(C)を認識させるための下地として使用
+
+allow_other_rules: false
+waive_rule_ids:
+  # AN, WN, ACの単体サイズ・間隔エラーや、重なりによって発生する他のエラーを無視
+  - AN.W1
+  - AN.S1
+  - WN.W1
+  - WN.S1
+  - AC.W1
+  - AC.S1
+  - AC.R1
+  - WN.Z2
+  - WN.Z3
+
+cases:
+  # パターン1：WN(C) が AN をピッタリ 3.0 囲んでいる状態（PASS）
+  - name: pass_enclose_3p0
+    shapes:
+      AN:
+        - [0.0, 0.0, 10.0, 10.0]
+      AC: # WN(C)として認識させるため、ANより全辺3.0大きく配置
+        - [-3.0, -3.0, 13.0, 13.0]
+      WN: # WN(C)として認識させるため、ACと同じサイズで配置
+        - [-3.0, -3.0, 13.0, 13.0]
+    expected_violations: 0
+
+  # パターン2：WN(C) の囲みが 2.95 しかない（4辺すべてで囲み不足 = FAIL）
+  - name: fail_enclose_2p95_all
+    shapes:
+      AN:
+        - [0.0, 0.0, 10.0, 10.0]
+      AC: # 全辺のマージンを 2.95 に縮小
+        - [-2.95, -2.95, 12.95, 12.95]
+      WN:
+        - [-2.95, -2.95, 12.95, 12.95]
+    expected_violations: 4
+
+  # パターン3：WN(C) の左辺だけ囲みが 2.95 しかない（1辺のみ囲み不足 = FAIL）
+  - name: fail_enclose_2p95_single
+    shapes:
+      AN:
+        - [0.0, 0.0, 10.0, 10.0]
+      AC: # Xの最小値(左辺)だけ -2.95、それ以外は 3.0 マージンを確保
+        - [-2.95, -3.0, 13.0, 13.0]
+      WN:
+        - [-2.95, -3.0, 13.0, 13.0]
+    expected_violations: 1

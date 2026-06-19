@@ -1,0 +1,50 @@
+rule_id: AR.WR
+
+layers:
+  AR: { number: 3, datatype: 3 }
+  WN: { number: 140, datatype: 0 } # ARと重なることで自動的にWN(R)として認識される
+
+allow_other_rules: false
+waive_rule_ids:
+  # ARとWNの単体ルール、および不要な相互作用エラーを無視する
+  - AR.W1
+  - AR.S1
+  - AR.XY
+  - AR.L1
+  - WN.W1
+  - WN.S1
+  - WN.S2
+  - WN.Z1
+  - WN.Z2
+  - WN.Z3
+  - GC.R1
+
+cases:
+  # パターン1：基準寸法 10.0 を満たすエンクロージャー（PASS）
+  - name: pass_enclose_10p0
+    shapes:
+      WN:
+        - [0.0, 0.0, 40.0, 40.0]  # 外側の大きな WN(R)
+      AR:
+        - [10.0, 10.0, 30.0, 30.0] # 全辺からぴったり 10.0 内側に配置
+    expected_violations: 0
+
+  # パターン2：左側の1辺だけ囲みが 9.95 しかないエラー (違反数: 1)
+  - name: fail_enclose_9p95_single
+    shapes:
+      WN:
+        - [0.0, 0.0, 40.0, 40.0]
+      AR:
+        - [9.95, 10.0, 30.0, 30.0] # 左辺だけ WN の端(0.0)から 9.95 の距離
+    expected_violations: 1
+
+  # パターン3：全辺で囲みが 9.95 しかないエラー
+  - name: fail_enclose_9p95_all
+    shapes:
+      WN:
+        - [0.05, 0.05, 39.95, 39.95] # WNを少しだけ小さくする
+      AR:
+        - [10.0, 10.0, 30.0, 30.0]  # ARからWNの端まで上下左右すべて 9.95 になる
+    # ※ツールの仕様により、違反図形が4つの辺(違反数:4)になるか、1つの図形(違反数:1)になるかが変わるため
+    # まずは expected_violations: 4 としていますが、エラーが出た場合はログに合わせて数値を修正してください。
+    expected_violations: 4

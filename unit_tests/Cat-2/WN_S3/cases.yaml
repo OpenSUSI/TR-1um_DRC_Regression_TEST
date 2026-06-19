@@ -1,0 +1,52 @@
+rule_id: WN.S3
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AC: { number: 3, datatype: 4 } # WNをWN(C)として認識させるための下地レイヤー
+
+allow_other_rules: false
+waive_rule_ids:
+  # WNとWN(C)の距離が12.0未満になった際に発火する通常のWN間隔エラー(WN.S1)を無視
+  - WN.S1
+  - WN.S2
+  - WN.W1
+  - WN.Z1
+  - WN.Z2
+  - WN.Z3
+  - AC.W1
+  - AC.S1
+  - AC.XY
+  - AC.L1
+  - AC.R1
+
+cases:
+  # パターン1：基準寸法 12.0 を満たすスペース（PASS）
+  - name: pass_space_12p0
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]  # 通常の WN
+        - [32.0, 0.0, 52.0, 30.0] # WN(C) になる WN (左のWNとの隙間 12.0)
+      AC:
+        - [32.0, 0.0, 52.0, 30.0] # ACを重ねることで、右側のWNが「WN(C)」として認識される
+    expected_violations: 0
+
+  # パターン2：隙間が 11.95 しかないエラー (違反数: 1)
+  - name: fail_space_11p95_single
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]
+        - [31.95, 0.0, 51.95, 30.0] # 隙間 11.95
+      AC:
+        - [31.95, 0.0, 51.95, 30.0] # 右側を WN(C) にする
+    expected_violations: 1
+
+  # パターン3：隙間 11.95 のエラーが2箇所 (違反数: 2)
+  - name: fail_space_11p95_double
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]      # 1つ目: 通常の WN
+        - [31.95, 0.0, 51.95, 30.0]   # 2つ目: WN(C) になる WN (左と 11.95 の隙間)
+        - [63.9, 0.0, 83.9, 30.0]     # 3つ目: 通常の WN (中央と 11.95 の隙間)
+      AC:
+        - [31.95, 0.0, 51.95, 30.0]   # 中央のWNだけを WN(C) にする
+    expected_violations: 2

@@ -1,0 +1,48 @@
+rule_id: WN.AP
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AP: { number: 3, datatype: 1 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # WNの単体ルール、APの単体ルールなどを無視する
+  - WN.W1
+  - WN.S1
+  - WN.Z1
+  - AP.W1
+  - AP.S1
+  # 他のレイヤーとの不要な干渉を防ぐため、広めにWaiveしておく
+  - WN.Z2
+  - WN.Z3
+  - AP.XY
+  - AP.L1
+
+cases:
+  # パターン1：基準寸法 5.0 を満たすスペース（PASS）
+  - name: pass_space_5p0
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]
+      AP:
+        - [25.0, 0.0, 45.0, 30.0] # WNから 5.0 離して配置
+    expected_violations: 0
+
+  # パターン2：隙間が 4.95 しかないエラー (違反数: 1)
+  - name: fail_space_4p95_single
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]
+      AP:
+        - [24.95, 0.0, 44.95, 30.0] # 隙間 4.95
+    expected_violations: 1
+
+  # パターン3：隙間 4.95 のエラーが2箇所 (違反数: 2)
+  - name: fail_space_4p95_double
+    shapes:
+      WN: 
+        - [0.0, 0.0, 20.0, 30.0]    # 1つ目の WN
+        - [49.9, 0.0, 69.9, 30.0]   # 2つ目の WN (APの右側に配置)
+      AP: 
+        - [24.95, 0.0, 44.95, 30.0] # 中央の AP (左右のWNとの隙間がそれぞれ 4.95)
+    expected_violations: 2
