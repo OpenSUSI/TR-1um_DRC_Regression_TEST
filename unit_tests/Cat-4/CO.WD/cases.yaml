@@ -1,0 +1,73 @@
+rule_id: CO.WD
+
+layers:
+  CO: { number: 11, datatype: 0 }
+  AP: { number: 3, datatype: 1 }
+  AN: { number: 3, datatype: 2 }
+  # APをダイオード化するためのNウェルを追加
+  WN: { number: 140, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - CO.W1
+  - CO.S1
+  - CO.Z1
+  - CO.Z3
+  - CO.AP
+  - CO.AN
+  - CO.AD
+  - AP.W1
+  - AP.S1
+  - AN.W1
+  - AN.S1
+  - AN.WN
+  # WN追加に伴う無視リスト
+  - WN.W1
+  - WN.S1
+  - WN.AP
+  - WN.Z1
+  - WN.Z2
+  - AP.WN
+
+cases:
+  # ==========================================
+  # 正常系①：AP(D) [WN内] 上の CO(D) が 1.2 x 1.2 (PASS)
+  # ==========================================
+  - name: pass_wfix_1p2_ap
+    shapes:
+      WN: [[-2.0, -2.0, 6.0, 6.0]] # APを覆うNウェル
+      AP: [[0.0, 0.0, 4.0, 4.0]]
+      CO: 
+        - [1.0, 1.0, 2.2, 2.2]
+    expected_violations: 0
+
+  # ==========================================
+  # 正常系②：AN(D) 上の CO(D) が 1.2 x 1.2 (PASS)
+  # ==========================================
+  - name: pass_wfix_1p2_an
+    shapes:
+      AN: [[0.0, 0.0, 4.0, 4.0]]
+      CO: 
+        - [1.0, 1.0, 2.2, 2.2]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系①：AP(D) [WN内] 上で幅を 1.0 に縮めた場合 -> 違反数: 2
+  # ==========================================
+  - name: fail_wfix_1p0_ap
+    shapes:
+      WN: [[-2.0, -2.0, 6.0, 6.0]] # APを覆うNウェル
+      AP: [[0.0, 0.0, 4.0, 4.0]]
+      CO: 
+        - [1.0, 1.0, 2.0, 2.2]
+    expected_violations: 2
+
+  # ==========================================
+  # 異常系②：AN(D) 上で幅を 1.0 に縮めた場合 -> 違反数: 2
+  # ==========================================
+  - name: fail_wfix_1p0_an
+    shapes:
+      AN: [[0.0, 0.0, 4.0, 4.0]]
+      CO: 
+        - [1.0, 1.0, 2.0, 2.2]
+    expected_violations: 2
