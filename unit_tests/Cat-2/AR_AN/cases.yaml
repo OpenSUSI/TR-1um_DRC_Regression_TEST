@@ -1,0 +1,47 @@
+rule_id: AR.AN
+
+layers:
+  AR: { number: 3, datatype: 3 }
+  AN: { number: 3, datatype: 2 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # ARとANそれぞれの単体ルールや他の禁止ルールなどを無視する
+  - AR.W1
+  - AR.S1
+  - AR.XY
+  - AR.L1
+  - AN.W1
+  - AN.S1
+  - AN.XY
+  - AN.L1
+  - GC.R1
+
+cases:
+  # パターン1：基準寸法 4.0 を満たすスペース（PASS）
+  - name: pass_space_4p0
+    shapes:
+      AR:
+        - [0.0, 0.0, 20.0, 30.0]
+      AN:
+        - [24.0, 0.0, 44.0, 30.0] # ARから 4.0 離して配置 (20.0 + 4.0 = 24.0)
+    expected_violations: 0
+
+  # パターン2：隙間が 3.95 しかないエラー (違反数: 1)
+  - name: fail_space_3p95_single
+    shapes:
+      AR:
+        - [0.0, 0.0, 20.0, 30.0]
+      AN:
+        - [23.95, 0.0, 43.95, 30.0] # 隙間 3.95
+    expected_violations: 1
+
+  # パターン3：隙間 3.95 のエラーが2箇所 (違反数: 2)
+  - name: fail_space_3p95_double
+    shapes:
+      AR: 
+        - [0.0, 0.0, 20.0, 30.0]    # 1つ目の AR
+        - [47.9, 0.0, 67.9, 30.0]   # 2つ目の AR (ANの右側に配置)
+      AN: 
+        - [23.95, 0.0, 43.95, 30.0] # 中央の AN (左右のARとの隙間がそれぞれ 3.95)
+    expected_violations: 2

@@ -1,0 +1,31 @@
+rule_id: WN.W1
+
+layers:
+  WN: { number: 140, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # 幅(Width)のテストなので、ウェル同士の間隔(Space)エラーが出ても無視する
+  - WN.S1
+
+cases:
+  # パターン1：基準寸法 8.0 を満たす配線（PASS）
+  - name: pass_width_8p0
+    shapes:
+      WN: [0.0, 0.0, 8.0, 30.0]
+    expected_violations: 0
+
+  # パターン2：幅が 7.95 しかない細い図形 (違反数: 1)
+  - name: fail_width_7p95_single
+    shapes:
+      WN: [0.0, 0.0, 7.95, 30.0]
+    expected_violations: 1
+
+  # パターン3：幅が 7.95 しかない細い図形が2つ (違反数: 2)
+  - name: fail_width_7p95_double
+    shapes:
+      # 2つ目の図形は、スペースエラー(WN.S1)の影響を受けないように十分に離して(x=20.0)配置
+      WN: 
+        - [0.0, 0.0, 7.95, 30.0]
+        - [20.0, 0.0, 27.95, 30.0]
+    expected_violations: 2

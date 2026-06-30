@@ -1,0 +1,38 @@
+rule_id: AR.S1
+
+layers:
+  AR: { number: 3, datatype: 3 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # スペースチェックに無関係なAR単体のエラーを無視する
+  - AR.W1
+  - AR.XY
+  - AR.L1
+  - GC.R1
+
+cases:
+  # パターン1：基準寸法 4.0 を満たすスペース（PASS）
+  - name: pass_space_4p0
+    shapes:
+      AR:
+        - [0.0, 0.0, 10.0, 30.0]  # 1つ目の AR
+        - [14.0, 0.0, 24.0, 30.0] # 2つ目の AR (隙間 4.0 -> 10.0 + 4.0 = 14.0)
+    expected_violations: 0
+
+  # パターン2：隙間が 3.95 しかないエラー (違反数: 1)
+  - name: fail_space_3p95_single
+    shapes:
+      AR:
+        - [0.0, 0.0, 10.0, 30.0]
+        - [13.95, 0.0, 23.95, 30.0] # 隙間 3.95
+    expected_violations: 1
+
+  # パターン3：隙間 3.95 のエラーが2箇所 (違反数: 2)
+  - name: fail_space_3p95_double
+    shapes:
+      AR: 
+        - [0.0, 0.0, 10.0, 30.0]
+        - [13.95, 0.0, 23.95, 30.0] # 1つ目の隙間 3.95
+        - [27.9, 0.0, 37.9, 30.0]   # 2つ目の隙間 3.95 (23.95 + 3.95 = 27.9)
+    expected_violations: 2

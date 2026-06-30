@@ -1,0 +1,47 @@
+rule_id: WN.AN
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AN: { number: 3, datatype: 2 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # WNとANそれぞれの単体ルールや他の禁止ルールなどを無視する
+  - WN.W1
+  - WN.S1
+  - WN.Z1
+  - WN.Z2
+  - WN.Z3
+  - AN.W1
+  - AN.S1
+  - AN.XY
+  - AN.L1
+
+cases:
+  # パターン1：基準寸法 10.0 を満たすスペース（PASS）
+  - name: pass_space_10p0
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]
+      AN:
+        - [30.0, 0.0, 50.0, 30.0] # WNから 10.0 離して配置 (20.0 + 10.0)
+    expected_violations: 0
+
+  # パターン2：隙間が 9.95 しかないエラー (違反数: 1)
+  - name: fail_space_9p95_single
+    shapes:
+      WN:
+        - [0.0, 0.0, 20.0, 30.0]
+      AN:
+        - [29.95, 0.0, 49.95, 30.0] # 隙間 9.95
+    expected_violations: 1
+
+  # パターン3：隙間 9.95 のエラーが2箇所 (違反数: 2)
+  - name: fail_space_9p95_double
+    shapes:
+      WN: 
+        - [0.0, 0.0, 20.0, 30.0]    # 1つ目の WN
+        - [59.9, 0.0, 79.9, 30.0]   # 2つ目の WN (ANの右側に配置)
+      AN: 
+        - [29.95, 0.0, 49.95, 30.0] # 中央の AN (左右のWNとの隙間がそれぞれ 9.95)
+    expected_violations: 2
