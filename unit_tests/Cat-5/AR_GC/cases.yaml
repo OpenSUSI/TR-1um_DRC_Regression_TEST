@@ -1,0 +1,39 @@
+rule_id: AR.GC
+
+layers:
+  AR: { number: 3, datatype: 3 }
+  GC: { number: 8, datatype: 1 }
+
+allow_other_rules: false
+waive_rule_ids:
+  - AR.XY
+  - AR.W1
+  - AR.L1
+  - AR.S1
+  - GC.W1
+  - GC.S1
+  - GC.R1
+  - GC.R2
+
+cases:
+  # ==========================================
+  # 正常系：ARとGCの間隔を 1.05 にする (Smin=1.0) -> PASS
+  # ==========================================
+  - name: pass_space_1p05
+    shapes:
+      AR: 
+        - [0.0, 0.0, 10.0, 10.0]
+      GC: 
+        - [11.05, 0.0, 21.05, 10.0]  # 間隔 = 11.05 - 10.0 = 1.05
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：Smin違反 (境界値テスト: 0.95) -> FAIL
+  # ==========================================
+  - name: fail_space_0p95
+    shapes:
+      AR: 
+        - [0.0, 0.0, 10.0, 10.0]
+      GC: 
+        - [10.95, 0.0, 20.95, 10.0]  # 間隔 = 10.95 - 10.0 = 0.95
+    expected_violations: 1

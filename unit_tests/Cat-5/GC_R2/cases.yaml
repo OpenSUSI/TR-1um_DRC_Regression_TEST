@@ -1,0 +1,58 @@
+rule_id: GC.R2
+
+layers:
+  WN: { number: 140, datatype: 0 }
+  AR: { number: 3, datatype: 3 }
+  GC: { number: 8, datatype: 1 }
+  CO: { number: 11, datatype: 0 }
+  M1: { number: 13, datatype: 0 }
+  AN: { number: 3, datatype: 2 } # WN(Nウェル)への正しいTieDown接点
+
+allow_other_rules: false
+waive_rule_ids:
+  - AR.XY
+  - AR.L1
+  - AR.W1
+  - AR.WR  # WNとARの囲みルールの無視
+  - GC.R1
+  - GC.W1
+  - GC.S1
+  - CO.W1
+  - CO.S1
+  - M1.W1
+  - M1.S1
+  - M1.CO  # M1とCOの囲みルールの無視
+  - WN.Z1
+  - WN.S1
+  - WN.W1
+
+cases:
+  # ==========================================
+  # 正常系：GCがM1を経由してANに繋がり、ANがWNにTieDownされている -> PASS
+  # ==========================================
+  - name: pass_tiedown
+    shapes:
+      WN: [[0.0, 0.0, 40.0, 30.0]]    # ベースとなる広いNウェル
+      AR: [[5.0, 5.0, 20.0, 25.0]]    # その中の抵抗領域
+      GC: [[10.0, 10.0, 15.0, 20.0]]  # WN内のGC
+      
+      # ★重要: WN領域の「内側」にANを配置して確実に接続させる
+      AN: [[25.0, 10.0, 35.0, 20.0]] 
+      
+      CO:
+        - [12.0, 14.0, 13.0, 15.0]    # GC上のコンタクト
+        - [29.0, 14.0, 30.0, 15.0]    # AN上のコンタクト
+      M1:
+        - [11.0, 13.0, 31.0, 16.0]    # 2つのCOを接続するM1配線
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：GCがどこにも繋がっていない（浮いている） -> FAIL
+  # ==========================================
+  - name: fail_floating
+    shapes:
+      WN: [[0.0, 0.0, 40.0, 30.0]]
+      AR: [[5.0, 5.0, 20.0, 25.0]]
+      GC: [[10.0, 10.0, 15.0, 20.0]]
+      # CO, M1, AN を配置せず、TieDown経路を断つ
+    expected_violations: 1

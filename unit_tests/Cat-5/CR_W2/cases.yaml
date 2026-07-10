@@ -1,0 +1,45 @@
+rule_id: CR.W2
+
+layers:
+  CO: { number: 11, datatype: 0 }
+  AR: { number: 3, datatype: 3 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # 短辺ルール(CR.W1)やその他の単体エラーをすべて握り潰す
+  - CR.W1
+  - CO.W1
+  - CO.Z1
+  - CO.Z3
+  - CO.S1
+  - AR.L1
+  - AR.W1
+  - AR.XY
+  - GC.R1
+  - GC.R2
+
+cases:
+  # ==========================================
+  # 正常系：長さを5.0にしてCL(RR)化し、幅を1.0にする -> PASS
+  # ==========================================
+  - name: pass_width_1p0_large
+    shapes:
+      AR:
+        - [-5.0, -5.0, 15.0, 15.0]
+      CO:
+        # Y方向を5.0に伸ばして「Large Contact」として認識させる
+        - [0.0, 0.0, 1.0, 5.0]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：CL(RR)の幅を 0.95 に縮める (< 1.0) -> FAIL
+  # ==========================================
+  - name: fail_width_0p95_large
+    shapes:
+      AR:
+        - [-5.0, -5.0, 15.0, 15.0]
+      CO:
+        # 長さは5.0のまま、検証対象の幅(X)を0.95にする
+        - [0.0, 0.0, 0.95, 5.0]
+    # 過去のログ実績に合わせて期待値を 1 に設定
+    expected_violations: 1

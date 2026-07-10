@@ -1,0 +1,37 @@
+rule_id: CR.W1
+
+layers:
+  CO: { number: 11, datatype: 0 }
+  AR: { number: 3, datatype: 3 } # CO(RR)判定用下地
+
+allow_other_rules: false
+waive_rule_ids:
+  - CO.Z1
+  - CO.S1
+  - AR.L1
+  - AR.XY
+  - AR.W1
+  - CO.W1
+  - CO.Z3
+  - CR.W2
+  - GC.R1
+  - GC.R2
+
+cases:
+  # ==========================================
+  # 正常系：COの短辺を 1.0 にする -> PASS
+  # ==========================================
+  - name: pass_width_1p0
+    shapes:
+      AR: [-5.0, -5.0, 15.0, 15.0] # AR下地
+      CO: [0.0, 0.0, 1.0, 5.0]     # 短辺が1.0、長辺が5.0
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：COの短辺を 0.95 にする (< 1.0)
+  # ==========================================
+  - name: fail_width_0p95
+    shapes:
+      AR: [-5.0, -5.0, 15.0, 15.0]
+      CO: [0.0, 0.0, 0.95, 5.0]    # 短辺が0.95
+    expected_violations: 1
