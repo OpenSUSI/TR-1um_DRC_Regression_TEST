@@ -1,0 +1,63 @@
+rule_id: APE.AN
+
+layers:
+  GC: { number: 8, datatype: 1 }
+  AP: { number: 3, datatype: 1 }
+  AN: { number: 3, datatype: 2 } # 比較対象のNMOSアクティブ層
+  WN: { number: 140, datatype: 0 }
+  ESD: { number: 63, datatype: 2 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # MPE, AP, AN, WN, GCに関連する単体エラーや別間隔ルールを無視
+  - APE.WM
+  - APE.LM
+  - APE.XY
+  - AP.W1
+  - AP.S1
+  - AP.XY
+  - AP.WM
+  - AN.W1
+  - AN.S1
+  - AN.XY
+  - GC.W1
+  - GC.S1
+  - WN.W1
+  - WN.S1
+  - WN.AP
+  - WN.AN
+
+cases:
+  # ==========================================
+  # 正常系：MPEとANの間隔を 10.5 にする (Smin=10.0) -> PASS
+  # ==========================================
+  - name: pass_space_10p5
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP: # MPEとなるAP図形
+        - [0.0, 0.0, 20.0, 20.0]
+      GC: # APと交差させてMPEとして認識させる
+        - [-5.0, 5.0, 25.0, 15.0]
+      AN: # MPE(APの右端X=20.0) から 10.5 離して配置
+        - [30.5, 0.0, 50.5, 20.0]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：MPEとANの間隔を 9.95 にする (< 10.0) -> FAIL
+  # ==========================================
+  - name: fail_space_9p95_single
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP:
+        - [0.0, 0.0, 20.0, 20.0]
+      GC:
+        - [-5.0, 5.0, 25.0, 15.0]
+      AN: # MPE(APの右端X=20.0) から 9.95 離して配置
+        - [29.95, 0.0, 49.95, 20.0]
+    expected_violations: 1

@@ -1,0 +1,56 @@
+rule_id: ANE.CO
+
+layers:
+  GC: { number: 8, datatype: 1 }
+  AN: { number: 3, datatype: 2 } # MNEとなるアクティブ層
+  ESD: { number: 63, datatype: 2 }
+  CO: { number: 11, datatype: 0 } # 比較対象のコンタクト層
+
+allow_other_rules: false
+waive_rule_ids:
+  # MNE, AN, GC, COに関連する単体エラーや浮きエラーを無視
+  - ANE.WM
+  - ANE.LM
+  - ANE.AP
+  - ANE.XY
+  - AN.W1
+  - AN.S1
+  - AN.XY
+  - AN.WM
+  - GC.W1
+  - GC.S1
+  - CO.W1
+  - CO.S1
+  - CO.Z1 # COがActive等に乗っていないエラー
+  - CO.Z3 # COの上にM1がないエラー
+
+cases:
+  # ==========================================
+  # 正常系：MNEとCOの間隔を 2.5 にする (Smin=2.0) -> PASS
+  # ==========================================
+  - name: pass_space_2p5
+    shapes:
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AN: # MNEとなるAN図形 (右端 X=20.0)
+        - [0.0, 0.0, 20.0, 20.0]
+      GC: # ANと交差させてMNEとして認識させる
+        - [-5.0, 5.0, 25.0, 15.0]
+      CO: # MNEの右端(X=20.0)から 2.5 離して配置
+        - [22.5, 0.0, 23.5, 1.0]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：MNEとCOの間隔を 1.95 にする (< 2.0) -> FAIL
+  # ==========================================
+  - name: fail_space_1p95_single
+    shapes:
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AN:
+        - [0.0, 0.0, 20.0, 20.0]
+      GC:
+        - [-5.0, 5.0, 25.0, 15.0]
+      CO: # MNEの右端(X=20.0)から 1.95 離して配置
+        - [21.95, 0.0, 22.95, 1.0]
+    expected_violations: 1

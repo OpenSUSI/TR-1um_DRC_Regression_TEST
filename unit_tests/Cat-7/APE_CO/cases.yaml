@@ -1,0 +1,64 @@
+rule_id: APE.CO
+
+layers:
+  GC: { number: 8, datatype: 1 }
+  AP: { number: 3, datatype: 1 }
+  WN: { number: 140, datatype: 0 }
+  ESD: { number: 63, datatype: 2 }
+  CO: { number: 11, datatype: 0 } # コンタクト層
+
+allow_other_rules: false
+waive_rule_ids:
+  # 形状・サイズ関連や、COの浮きエラーを無視
+  - APE.WM
+  - APE.LM
+  - APE.AN
+  - APE.XY
+  - AP.W1
+  - AP.S1
+  - AP.XY
+  - AP.WM
+  - GC.W1
+  - GC.S1
+  - WN.W1
+  - WN.S1
+  - WN.AP
+  - CO.W1
+  - CO.S1
+  - CO.Z1 # COがAA/GC等の上にないエラー
+  - CO.Z3 # COの上にM1がないエラー
+
+cases:
+  # ==========================================
+  # 正常系：MPEとCOの間隔を 2.5 にする (Smin=2.0) -> PASS
+  # ==========================================
+  - name: pass_space_2p5
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP: # MPEとなるAP図形 (右端 X=20.0)
+        - [0.0, 0.0, 20.0, 20.0]
+      GC: # APと交差させてMPE化する
+        - [-5.0, 5.0, 25.0, 15.0]
+      CO: # MPEの右端(X=20.0)から 2.5 離して配置
+        - [22.5, 0.0, 23.5, 1.0]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：MPEとCOの間隔を 1.95 にする (< 2.0) -> FAIL
+  # ==========================================
+  - name: fail_space_1p95_single
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP:
+        - [0.0, 0.0, 20.0, 20.0]
+      GC:
+        - [-5.0, 5.0, 25.0, 15.0]
+      CO: # MPEの右端(X=20.0)から 1.95 離して配置
+        - [21.95, 0.0, 22.95, 1.0]
+    expected_violations: 1
