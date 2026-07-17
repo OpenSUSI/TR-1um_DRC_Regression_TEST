@@ -1,0 +1,74 @@
+rule_id: CDE.GC
+
+layers:
+  GC: { number: 8, datatype: 1 }
+  AP: { number: 3, datatype: 1 }
+  WN: { number: 140, datatype: 0 }
+  ESD: { number: 63, datatype: 2 }
+  CO: { number: 11, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # ESD, MOS, CO関連の単体ルールや他ルールの間隔エラーを無視
+  - CSE.GC
+  - COE.W1
+  - COE.S1
+  - COE.AP
+  - COE.AN
+  - APE.WM
+  - APE.LM
+  - APE.AN
+  - APE.XY
+  - APE.CO
+  - AP.W1
+  - AP.S1
+  - AP.XY
+  - AP.WM
+  - GC.W1
+  - GC.S1
+  - WN.W1
+  - WN.S1
+  - WN.AP
+  - CO.W1
+  - CO.S1
+  - CO.Z1
+  - CO.Z3
+
+cases:
+  # ==========================================
+  # 正常系：GCとCOの間隔を 7.5 にする (Smin=7.0) -> PASS
+  # ==========================================
+  - name: pass_space_7p5
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP:
+        - [0.0, 0.0, 50.0, 20.0]
+      GC:
+        # X=10.0 から 15.0 にゲートを配置
+        - [10.0, -5.0, 15.0, 25.0]
+      CO:
+        # GCの右端(X=15.0)から 7.5 離して配置 (15.0 + 7.5 = 22.5)
+        # サイズは COE.W1(3.0) を満たす四角形
+        - [22.5, 8.5, 25.5, 11.5]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：GCとCOの間隔を 6.95 に縮める (< 7.0) -> FAIL
+  # ==========================================
+  - name: fail_space_6p95_single
+    shapes:
+      WN:
+        - [-20.0, -20.0, 100.0, 100.0]
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AP:
+        - [0.0, 0.0, 50.0, 20.0]
+      GC:
+        - [10.0, -5.0, 15.0, 25.0]
+      CO:
+        # GCの右端(X=15.0)から 6.95 離して配置 (15.0 + 6.95 = 21.95)
+        - [21.95, 8.5, 24.95, 11.5]
+    expected_violations: 1

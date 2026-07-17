@@ -1,0 +1,66 @@
+rule_id: COE.AN
+
+layers:
+  GC: { number: 8, datatype: 1 }
+  AN: { number: 3, datatype: 2 } # 判定対象となるN-Active
+  ESD: { number: 63, datatype: 2 }
+  CO: { number: 11, datatype: 0 }
+
+allow_other_rules: false
+waive_rule_ids:
+  # ESD, MOS, CO関連の単体ルールや他ルールの間隔エラーを無視
+  - CDE.GC
+  - CSE.GC
+  - COE.W1
+  - COE.S1
+  - COE.AP
+  - ANE.WM
+  - ANE.LM
+  - ANE.AP
+  - ANE.XY
+  - ANE.CO
+  - AN.W1
+  - AN.S1
+  - AN.XY
+  - AN.WM
+  - GC.W1
+  - GC.S1
+  - CO.W1
+  - CO.S1
+  - CO.Z1
+  - CO.Z3
+
+cases:
+  # ==========================================
+  # 正常系：COとANの左端マージンを 4.5 にする (Emin=4.0) -> PASS
+  # ==========================================
+  - name: pass_enclose_4p5
+    shapes:
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AN:
+        # 左端は X=0.0
+        - [0.0, 0.0, 30.0, 30.0]
+      GC:
+        # AN全体を覆ってMNEとして認識させる
+        - [-5.0, -5.0, 35.0, 35.0]
+      CO:
+        # 左端マージンを 4.5 (X=4.5) に配置。サイズは COE.W1用の 3.0 x 3.0
+        - [4.5, 10.0, 7.5, 13.0]
+    expected_violations: 0
+
+  # ==========================================
+  # 異常系：COとANの左端マージンを 3.95 に縮める (< 4.0) -> FAIL
+  # ==========================================
+  - name: fail_enclose_3p95_single
+    shapes:
+      ESD:
+        - [-20.0, -20.0, 100.0, 100.0]
+      AN:
+        - [0.0, 0.0, 30.0, 30.0]
+      GC:
+        - [-5.0, -5.0, 35.0, 35.0]
+      CO:
+        # 左端マージンを 3.95 (X=3.95) に配置 (右端は 3.95 + 3.0 = 6.95)
+        - [3.95, 10.0, 6.95, 13.0]
+    expected_violations: 1
