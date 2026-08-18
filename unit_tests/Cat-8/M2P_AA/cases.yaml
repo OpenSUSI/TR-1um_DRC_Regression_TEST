@@ -1,0 +1,117 @@
+rule_id: M2P.AA
+layers:
+  M2: { number: 20, datatype: 0 }
+  PO: { number: 14, datatype: 0 }
+  AP: { number: 3, datatype: 1 }
+  AN: { number: 3, datatype: 2 }
+  AR: { number: 3, datatype: 3 }
+  AC: { number: 3, datatype: 4 }
+allow_other_rules: false
+
+waive_rule_ids:
+  # PO/PP関連のエラーを無視
+  - PO.W1
+  - PO.S1
+  - PO.Z1
+  - PO.Z2
+  - PO.Z3
+  - PO.AP
+  - PO.AN
+  - PP.W1
+  - PP.S1
+  # M2およびM2(P)関連のエラーを無視
+  - M2.W1
+  - M2.W3
+  - M2.S1
+  - M2.PO
+  - M2P.GA
+  - M2P.M2
+  - M2P.PE
+  - M2P.PW
+  # AA(AP, AN, AR, AC)関連の単体・下地エラーを徹底的に無視
+  - AP.W1
+  - AP.S1
+  - AP.WN
+  - AN.W1
+  - AN.S1
+  - AN.WN
+  - AR.W1
+  - AR.L1
+  - AR.XY
+  - AR.S1
+  - AC.W1
+  - AC.S1
+  - AC.R1
+  - AC.AN
+  - AC.GC
+  - GC.R1
+  - RR.SZ
+
+cases:
+  # ==========================================
+  # 1. AP (Active for P+) とのテスト
+  # ==========================================
+  - name: pass_space_14p0_AP
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AP: [[114.0, 0.0, 214.0, 100.0]]
+    expected_violations: 0
+
+  - name: fail_space_13p95_AP
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AP: [[113.95, 0.0, 213.95, 100.0]]
+    expected_violations: 1
+
+  # ==========================================
+  # 2. AN (Active for N+) とのテスト
+  # ==========================================
+  - name: pass_space_14p0_AN
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AN: [[114.0, 0.0, 214.0, 100.0]]
+    expected_violations: 0
+
+  - name: fail_space_13p95_AN
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AN: [[113.95, 0.0, 213.95, 100.0]]
+    expected_violations: 1
+
+  # ==========================================
+  # 3. AR (Active for Resistor) とのテスト
+  # ==========================================
+  - name: pass_space_14p0_AR
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AR: [[114.0, 0.0, 214.0, 100.0]]
+    expected_violations: 0
+
+  - name: fail_space_13p95_AR
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AR: [[113.95, 0.0, 213.95, 100.0]]
+    expected_violations: 1
+
+  # ==========================================
+  # 4. AC (Active for Capacitor) とのテスト
+  # ==========================================
+  - name: pass_space_14p0_AC
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AC: [[114.0, 0.0, 214.0, 100.0]]
+    expected_violations: 0
+
+  - name: fail_space_13p95_AC
+    shapes:
+      PO: [[0.0, 0.0, 100.0, 100.0]]
+      M2: [[0.0, 0.0, 100.0, 100.0]]
+      AC: [[113.95, 0.0, 213.95, 100.0]]
+    expected_violations: 1
