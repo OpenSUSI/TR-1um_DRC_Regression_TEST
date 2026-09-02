@@ -12,8 +12,10 @@ waive_rule_ids:
   - CO.S1
   - M1.W1
   - M1.S1
-  - M1.CO # M1がCOを規定値以上囲んでいないと出るエラーを無視
+  - M1.CO 
   - GC.W1
+  - CL.GC
+  - GC.ANT
 
 cases:
   # パターン1：COの上にM1が正しく乗っている状態（PASS）

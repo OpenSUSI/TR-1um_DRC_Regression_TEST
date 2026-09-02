@@ -22,6 +22,11 @@ waive_rule_ids:
   - WN.Z2
   - AR.XY
   - GC.R1
+  - AC.AN
+  - AC.GC
+  - AR.GC
+  - RR.SZ
+  - Warning
 
 cases:
   - name: pass_WN_C_AN

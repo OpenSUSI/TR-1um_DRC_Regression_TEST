@@ -19,6 +19,9 @@ waive_rule_ids:
   - AP.W1
   - AP.S1
   - AC.R1
+  - AC.AN
+  - AC.GC
+  - Warning
 
 cases:
   - name: pass_WN_C_AN

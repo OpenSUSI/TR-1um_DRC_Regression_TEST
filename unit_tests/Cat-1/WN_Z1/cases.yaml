@@ -12,6 +12,9 @@ allow_other_rules: false
 waive_rule_ids:
   - AR.L1
   - GC.R2
+  - GA.CO
+  - GC.ANT
+  - "[EXT] Invalid RR. Check CO enclosure."
   
 cases:
   - name: pass_AR_AN

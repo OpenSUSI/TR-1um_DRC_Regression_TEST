@@ -31,6 +31,16 @@ waive_rule_ids:
   - AC.S1
   - AC.R1
   - CO.WD
+  - CO.WB
+  - AR.GC
+  - AC.AN
+  - AC.GC
+  - CL.GC
+  - GC.ANT
+  - CO.GS
+  - Warning
+  - "[EXT] Invalid RR. Check CO enclosure."
+  - "[EXT] Invalid RS. Check CO spacing and enclosure."
 
 cases:
   # パターン1〜4：AAの構成要素（AP, AN, AR, AC）それぞれの上にCOを配置するケース

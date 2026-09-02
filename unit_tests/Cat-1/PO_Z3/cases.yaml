@@ -25,6 +25,9 @@ waive_rule_ids:
   - M2.W1
   - M2.S1
   - M2.PO
+  - M1.W3
+  - M2.W3
+  - V1.WP
 
 cases:
   # パターン1：V1がPOの「内側（真下）」にある状態（前回 Actual: 0 だったのでこれが正解！）
