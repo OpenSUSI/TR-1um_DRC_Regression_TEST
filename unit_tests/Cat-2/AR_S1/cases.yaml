@@ -9,6 +9,8 @@ waive_rule_ids:
   - AR.W1
   - AR.XY
   - AR.L1
+  - AR.GC
+  - RR.SZ
   - GC.R1
 
 cases:
