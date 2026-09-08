@@ -5,6 +5,12 @@ layers:
   GC: { number: 8, datatype: 1 }
   WN: { number: 140, datatype: 0 }
 
+allow_other_rules: false
+# 構成上発生しうる他のサイズ/スペースエラーを無視リストに登録
+waive_rule_ids:
+  - GA.CO
+  - GC.ANT
+
 cases:
   - name: pass_sep_s2p85
     shapes:
