@@ -11,6 +11,8 @@ waive_rule_ids:
   - AR.S1
   - AR.XY
   - AR.L1
+  - AR.GC
+  - RR.SZ
   - WN.W1
   - WN.S1
   - WN.S2

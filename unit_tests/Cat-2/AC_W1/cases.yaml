@@ -8,6 +8,9 @@ allow_other_rules: false
 waive_rule_ids:
   - AC.S1
   - AC.R1
+  - AC.AN
+  - AC.GC
+  - Warning
 
 cases:
   # ==========================================

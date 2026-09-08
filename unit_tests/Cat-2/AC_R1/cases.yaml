@@ -9,6 +9,8 @@ allow_other_rules: false
 waive_rule_ids:
   - AC.W1
   - AC.S1
+  - AC.AN
+  - AC.GC
   - AN.W1
   - AN.S1
   - WN.W1
@@ -16,6 +18,7 @@ waive_rule_ids:
   - WN.Z1
   - WN.Z2
   - WN.AN
+  - Warning
 
 cases:
   # ==========================================

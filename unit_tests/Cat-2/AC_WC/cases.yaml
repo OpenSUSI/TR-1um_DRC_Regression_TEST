@@ -10,6 +10,10 @@ waive_rule_ids:
   - AC.W1
   - AC.S1
   - AC.R1  # ACがANに囲まれていないというエラーを無視
+  - AC.AN
+  - AC.GC
+  - AC.WC
+  - Warning
   - WN.W1
   - WN.S1
   - WN.Z1

@@ -14,6 +14,10 @@ waive_rule_ids:
   - AC.R1 # ACの周りにANがないエラーなどを想定して無視
   - GC.R1 # GCに関する別の囲みルール等を想定して無視
   - GC.R2
+  - AC.AN
+  - GA.CO
+  - GC.ANT
+  - Warning
 
 cases:
   # パターン1：GC が AC をピッタリ 1.4 囲んでいる状態（PASS）

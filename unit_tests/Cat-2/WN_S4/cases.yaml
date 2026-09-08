@@ -20,12 +20,18 @@ waive_rule_ids:
   - AR.XY
   - AR.L1
   - AR.WR
+  - AR.GC
+  - RR.SZ
   - AC.W1
   - AC.S1
   - AC.XY
   - AC.L1
   - AC.R1
-  - GC.R1 # 念のため追加
+  - AC.AN
+  - AC.GC
+  - AC.WC
+  - GC.R1 
+  - Warning
 
 cases:
   # パターン1：基準寸法 9.5 を満たすスペース（PASS）

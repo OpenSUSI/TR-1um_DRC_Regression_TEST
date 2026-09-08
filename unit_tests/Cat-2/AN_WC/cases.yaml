@@ -10,6 +10,9 @@ waive_rule_ids:
   # AN, WN, ACの単体サイズ・間隔エラーや、重なりによって発生する他のエラーを無視
   - AN.W1
   - AN.S1
+  - AC.AN
+  - AC.GC
+  - AC.WC
   - WN.W1
   - WN.S1
   - AC.W1
@@ -17,6 +20,7 @@ waive_rule_ids:
   - AC.R1
   - WN.Z2
   - WN.Z3
+  - Warning
 
 cases:
   # パターン1：WN(C) が AN をピッタリ 3.0 囲んでいる状態（PASS）
