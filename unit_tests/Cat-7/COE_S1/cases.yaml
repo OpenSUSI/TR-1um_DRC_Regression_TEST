@@ -1,77 +1,72 @@
 rule_id: COE.S1
 
 layers:
-  GC: { number: 8, datatype: 1 }
-  AP: { number: 3, datatype: 1 }
-  WN: { number: 140, datatype: 0 }
-  ESD: { number: 63, datatype: 2 }
-  CO: { number: 11, datatype: 0 }
+  ESD: { number:  63, datatype: 2 }
+  WN:  { number: 140, datatype: 0 }
+  AP:  { number:   3, datatype: 1 }
+  GC:  { number:   8, datatype: 1 }
+  CO:  { number:  11, datatype: 0 }
 
 allow_other_rules: false
 waive_rule_ids:
-  # ESD, MOS, CO関連の単体ルールや不要な間隔ルールを無視
-  - COE.W1
-  - COE.AP
-  - COE.AN
-  - CDE.GC
-  - CSE.GC
-  - APE.WM
-  - APE.LM
-  - APE.AN
-  - APE.XY
-  - APE.CO
-  - AP.W1
   - AP.S1
-  - AP.XY
+  - AP.W1
   - AP.WM
-  - GC.W1
-  - GC.S1
-  - WN.W1
-  - WN.S1
-  - WN.AP
-  - CO.W1
+  - AP.XY
+  - APE.AN
+  - APE.CO
+  - APE.LM
+  - APE.WM
+  - APE.XY
+  - CDE.GC
+  - CL.GC
+  - CO.AP
+  - CO.CL
   - CO.S1
+  - CO.W1
   - CO.Z1
   - CO.Z3
-  - CO.AP
+  - COE.AN
+  - COE.AP
+  - COE.SE
+  - COE.W1
+  - CSE.GC
+  - GA.CO
+  - GC.ANT
+  - GC.S1
+  - GC.W1
+  - WN.AP
+  - WN.S1
+  - WN.W1
+  - Warning
 
 cases:
-  # ==========================================
-  # 正常系：CO同士の間隔を 2.0 にする (Smin=1.6) -> PASS
-  # ==========================================
   - name: pass_space_2p0
     shapes:
-      WN:
-        - [-20.0, -20.0, 100.0, 100.0]
       ESD:
-        - [-20.0, -20.0, 100.0, 100.0]
+        - [-40.0, -40.0, 140.0, 140.0]
+      WN:
+        - [-50.0, -50.0, 150.0, 150.0]
       AP:
-        - [0.0, 0.0, 20.0, 20.0]
+        - [0.0, 0.0, 50.0, 50.0]
       GC:
-        - [-5.0, -5.0, 25.0, 25.0] # AP全体を覆ってMPE化する
+        - [20.0, -5.0, 30.0, 55.0]
       CO:
-        # 1つ目のコンタクト (3.0 x 3.0)
-        - [0.0, 0.0, 3.0, 3.0]
-        # 2つ目のコンタクト (間隔 2.0 を空けて配置)
-        - [5.0, 0.0, 8.0, 3.0]
+        - [4.0, 10.0, 7.0, 13.0]
+        - [4.0, 15.0, 7.0, 18.0]
     expected_violations: 0
 
-  # ==========================================
-  # 異常系：CO同士の間隔を 1.55 に縮める (< 1.6) -> FAIL
-  # ==========================================
   - name: fail_space_1p55_single
     shapes:
-      WN:
-        - [-20.0, -20.0, 100.0, 100.0]
       ESD:
-        - [-20.0, -20.0, 100.0, 100.0]
+        - [-40.0, -40.0, 140.0, 140.0]
+      WN:
+        - [-50.0, -50.0, 150.0, 150.0]
       AP:
-        - [0.0, 0.0, 20.0, 20.0]
+        - [0.0, 0.0, 50.0, 50.0]
       GC:
-        - [-5.0, -5.0, 25.0, 25.0]
+        - [20.0, -5.0, 30.0, 55.0]
       CO:
-        # 1つ目のコンタクト
-        - [0.0, 0.0, 3.0, 3.0]
-        # 2つ目のコンタクト (間隔を 1.55 にする)
-        - [4.55, 0.0, 7.55, 3.0]
-    expected_violations: 1
+        - [4.0, 10.0, 7.0, 13.0]
+        - [4.0, 14.55, 7.0, 17.55]
+    expected_violations: 2

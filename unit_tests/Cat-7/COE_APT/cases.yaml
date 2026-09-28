@@ -1,4 +1,4 @@
-rule_id: COE.W1
+rule_id: COE.APT
 
 layers:
   ESD: { number:  63, datatype: 2 }
@@ -9,75 +9,78 @@ layers:
 
 allow_other_rules: false
 waive_rule_ids:
-  - AP.S1
-  - AP.W1
-  - AP.WM
-  - AP.XY
-  - APE.AN
-  - APE.CO
-  - APE.LM
   - APE.WM
+  - APE.LM
+  - APE.AN
   - APE.XY
-  - CDE.GC
-  - CL.GC
-  - CO.AP
-  - CO.S1
-  - CO.W1
-  - CO.Z1
-  - CO.Z3
-  - COE.AN
-  - COE.AP
+  - APE.CO
+  - COE.W1
   - COE.S1
   - COE.SE
+  - COE.AP
+  - COE.AN
+  - COE.ANT
+  - CDE.GC
   - CSE.GC
-  - GA.CO
-  - GC.ANT
-  - GC.S1
+  - AP.W1
+  - AP.S1
+  - AP.XY
+  - AP.WM
+  - AP.LM
   - GC.W1
-  - WN.AP
+  - GC.S1
+  - GC.ANT
+  - GA.CO
   - WN.S1
   - WN.W1
+  - CO.W1
+  - CO.S1
+  - CO.AP
+  - CO.GC
+  - CO.Z1
+  - CO.Z3
   - Warning
 
 cases:
-  - name: pass_width_3p0
+  - name: pass_margin_4p0
     shapes:
-      ESD:
-        - [-40.0, -40.0, 140.0, 140.0]
       WN:
         - [-50.0, -50.0, 150.0, 150.0]
+      ESD:
+        - [-40.0, -40.0, 140.0, 140.0]
       AP:
         - [0.0, 0.0, 50.0, 50.0]
       GC:
         - [20.0, -5.0, 30.0, 55.0]
       CO:
-        - [5.0, 10.0, 8.0, 13.0]
+        - [4.0, 10.0, 7.0, 13.0]
     expected_violations: 0
 
-  - name: fail_width_2p95
+  - name: fail_margin_3p95_single
     shapes:
-      ESD:
-        - [-40.0, -40.0, 140.0, 140.0]
       WN:
         - [-50.0, -50.0, 150.0, 150.0]
+      ESD:
+        - [-40.0, -40.0, 140.0, 140.0]
       AP:
         - [0.0, 0.0, 50.0, 50.0]
       GC:
         - [20.0, -5.0, 30.0, 55.0]
       CO:
-        - [5.0, 10.0, 7.95, 12.95]
-    expected_violations: 3
-
-  - name: fail_width_3p05
-    shapes:
-      ESD:
-        - [-40.0, -40.0, 140.0, 140.0]
-      WN:
-        - [-50.0, -50.0, 150.0, 150.0]
-      AP:
-        - [0.0, 0.0, 50.0, 50.0]
-      GC:
-        - [20.0, -5.0, 30.0, 55.0]
-      CO:
-        - [5.0, 10.0, 8.05, 13.05]
+        - [3.95, 10.0, 6.95, 13.0]
     expected_violations: 1
+
+  - name: fail_margin_3p95_double
+    shapes:
+      WN:
+        - [-50.0, -50.0, 150.0, 150.0]
+      ESD:
+        - [-40.0, -40.0, 140.0, 140.0]
+      AP:
+        - [0.0, 0.0, 50.0, 50.0]
+      GC:
+        - [20.0, -5.0, 30.0, 55.0]
+      CO:
+        - [3.95, 10.0, 6.95, 13.0]
+        - [3.95, 25.0, 6.95, 28.0]
+    expected_violations: 2

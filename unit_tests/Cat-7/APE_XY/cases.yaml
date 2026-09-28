@@ -1,50 +1,51 @@
 rule_id: APE.XY
 
 layers:
-  GC: { number: 8, datatype: 1 }
-  AP: { number: 3, datatype: 1 }
-  WN: { number: 140, datatype: 0 }
-  ESD: { number: 63, datatype: 2 }
+  ESD: { number:  63, datatype: 2 }
+  WN:  { number: 140, datatype: 0 }
+  AP:  { number:   3, datatype: 1 }
+  GC:  { number:   8, datatype: 1 }
 
 allow_other_rules: false
 waive_rule_ids:
-  # MPEに関連する寸法ルールや、構成レイヤーの単体エラーを無視
   - APE.WM
   - APE.LM
   - APE.AN
   - APE.CO
   - AP.W1
   - AP.S1
+  - AP.XY
   - AP.WM
+  - AP.LM
   - GC.W1
   - GC.S1
+  - GC.ANT
+  - GA.CO
   - WN.W1
   - WN.S1
   - WN.AP
+  - Warning
 
 cases:
   # ==========================================
-  # 正常系：8辺あり、カット面積が十分にある八角形 -> PASS
-  # cut: 1.5 の場合、角の三角形の面積は (1.5 * 1.5) / 2 = 1.125 (>= 0.98)
+  # 正常系：カット量 1.40 (PASS)
   # ==========================================
-  - name: pass_octagon
+  - name: pass_bevel_1p40
     shapes:
       WN:
         - [-10.0, -10.0, 20.0, 20.0]
       ESD:
         - [-10.0, -10.0, 20.0, 20.0]
       GC:
-        # APを完全に覆い、交差部分(MPE)をAPの形そのままにする
         - [-5.0, -5.0, 15.0, 15.0]
       AP:
         - type: octagon
           box: [0.0, 0.0, 10.0, 10.0]
-          cut: 1.5
+          cut: 1.40
     expected_violations: 0
 
   # ==========================================
-  # 異常系①：八角形ではない（四角形/4辺） -> 違反数: 4
-  # 四隅すべてがカットされていないため、4箇所のコーナーでそれぞれエラーになる
+  # 異常系①：四角形 -> 4コーナー違反 (違反数: 4)
   # ==========================================
   - name: fail_rectangle
     shapes:
@@ -59,10 +60,9 @@ cases:
     expected_violations: 4
 
   # ==========================================
-  # 異常系②：カット面積不足 (cut: 1.0) -> 違反数: 4
-  # cut: 1.0 の場合、角の三角形の面積は (1.0 * 1.0) / 2 = 0.50 (< 0.98)
+  # 異常系②：カット量 1.35 (0.05不足) -> 4コーナー違反 (違反数: 4)
   # ==========================================
-  - name: fail_small_cut
+  - name: fail_bevel_1p35
     shapes:
       WN:
         - [-10.0, -10.0, 20.0, 20.0]
@@ -73,5 +73,5 @@ cases:
       AP:
         - type: octagon
           box: [0.0, 0.0, 10.0, 10.0]
-          cut: 1.0
+          cut: 1.35
     expected_violations: 4

@@ -1,17 +1,27 @@
-rule_id: APE.WM
+rule_id: COE.SE
 
 layers:
   ESD: { number:  63, datatype: 2 }
   WN:  { number: 140, datatype: 0 }
   AP:  { number:   3, datatype: 1 }
   GC:  { number:   8, datatype: 1 }
+  CO:  { number:  11, datatype: 0 }
 
 allow_other_rules: false
 waive_rule_ids:
+  - APE.WM
   - APE.LM
   - APE.AN
   - APE.XY
   - APE.CO
+  - COE.W1
+  - COE.S1
+  - COE.AP
+  - COE.AN
+  - COE.APT
+  - COE.ANT
+  - CDE.GC
+  - CSE.GC
   - AP.W1
   - AP.S1
   - AP.XY
@@ -21,45 +31,59 @@ waive_rule_ids:
   - GC.S1
   - GC.ANT
   - GA.CO
-  - CDE.GC
   - WN.W1
   - WN.S1
-  - WN.AP
+  - CO.W1
+  - CO.S1
+  - CO.CL
+  - CO.AP
+  - CO.GC
+  - CO.Z1
+  - CO.Z3
   - Warning
 
 cases:
-  - name: pass_width_20p0
+  - name: pass_space_1p60
     shapes:
       WN:
         - [-50.0, -50.0, 150.0, 150.0]
       ESD:
         - [-40.0, -40.0, 140.0, 140.0]
       AP:
-        - [0.0, 0.0, 20.0, 70.0]
+        - [0.0, 0.0, 50.0, 12.60]
       GC:
-        - [-5.0, 25.0, 25.0, 45.0]
+        - [20.0, -5.0, 30.0, 17.60]
+      CO:
+        - [4.0, 2.50, 7.0, 5.50]
+        - [4.0, 7.10, 7.0, 10.10]
     expected_violations: 0
 
-  - name: fail_wmin_10p95
+  - name: fail_space_1p55_under
     shapes:
       WN:
         - [-50.0, -50.0, 150.0, 150.0]
       ESD:
         - [-40.0, -40.0, 140.0, 140.0]
       AP:
-        - [0.0, 0.0, 10.95, 70.0]
+        - [0.0, 0.0, 50.0, 12.55]
       GC:
-        - [-5.0, 25.0, 15.95, 45.0]
+        - [20.0, -5.0, 30.0, 17.55]
+      CO:
+        - [4.0, 2.50, 7.0, 5.50]
+        - [4.0, 7.05, 7.0, 10.05]
     expected_violations: 2
 
-  - name: fail_wmax_60p05
+  - name: fail_space_1p65_over
     shapes:
       WN:
         - [-50.0, -50.0, 150.0, 150.0]
       ESD:
         - [-40.0, -40.0, 140.0, 140.0]
       AP:
-        - [0.0, 0.0, 60.05, 70.0]
+        - [0.0, 0.0, 50.0, 12.65]
       GC:
-        - [-5.0, 25.0, 65.05, 45.0]
+        - [20.0, -5.0, 30.0, 17.65]
+      CO:
+        - [4.0, 2.50, 7.0, 5.50]
+        - [4.0, 7.15, 7.0, 10.15]
     expected_violations: 2
